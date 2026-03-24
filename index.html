@@ -882,6 +882,7 @@
       --fs-success-soft: rgba(34,197,94,0.12);
       --fs-warning-soft: rgba(245,158,11,0.14);
       --fs-danger-soft: rgba(239,68,68,0.12);
+      --fs-safe-bottom: max(14px, env(safe-area-inset-bottom));
       color: var(--fs-text);
       background:
         radial-gradient(1100px 420px at 12% 12%, var(--fs-bg1), transparent 62%),
@@ -915,6 +916,8 @@
     #freshShell a{color:inherit}
 
     .fs-wrap{max-width: 1440px; margin: 0 auto;}
+    .fs-main{padding: 18px 0 calc(28px + var(--fs-safe-bottom));}
+    .fs-panel{scroll-margin-top: 92px;}
 
     .fs-topbar{
       position: sticky;
@@ -1030,7 +1033,6 @@
     .fs-dot.warning{background: var(--fs-warning);}
     @keyframes fsPulse{0%{box-shadow: 0 0 0 0 rgba(34,197,94,0.55);}70%{box-shadow: 0 0 0 10px rgba(34,197,94,0);}100%{box-shadow: 0 0 0 0 rgba(34,197,94,0);}}
 
-    .fs-main{padding: 18px 0 28px;}
     .fs-panel{display:none;}
     .fs-panel.is-active{display:block;}
 
@@ -1365,6 +1367,41 @@
     .fs-meta-media{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
     .fs-meta-media img{width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid var(--fs-border);}
 
+    .fs-mobile-nav{
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: var(--fs-safe-bottom);
+      z-index: 90;
+      display: none;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid var(--fs-border);
+      border-radius: 16px;
+      background: color-mix(in oklab, var(--fs-surface) 90%, transparent);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 32px rgba(2,6,23,0.18);
+    }
+    .fs-mobile-tab{
+      appearance:none;
+      border:1px solid transparent;
+      background: transparent;
+      color: var(--fs-muted);
+      border-radius: 12px;
+      padding: 10px 8px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .fs-mobile-tab.is-active{
+      background: var(--fs-primary-soft);
+      border-color: color-mix(in oklab, var(--fs-primary) 35%, var(--fs-border));
+      color: var(--fs-text);
+    }
+
     @media (max-width: 1100px){
       .fs-kpi{grid-template-columns: repeat(2, minmax(0,1fr));}
       .fs-form{grid-template-columns: repeat(2, minmax(0,1fr));}
@@ -1378,15 +1415,20 @@
 
     @media (max-width: 760px){
       #freshShell{padding: 12px;}
-      .fs-top-main{justify-content:center;}
+      .fs-top-main{justify-content:flex-start;}
       .fs-top-meta{justify-content:center;}
-      .fs-top-nav{flex-direction:column; align-items:stretch;}
+      .fs-top-nav{flex-direction:column; align-items:stretch; gap:10px;}
       .fs-top-nav-center{order:1;}
-      .fs-top-nav-actions{order:2; justify-content:center; margin-left:0;}
+      .fs-top-nav-actions{order:2; justify-content:flex-start; margin-left:0; overflow-x:auto; flex-wrap:nowrap; padding-bottom:2px;}
+      .fs-top-nav-actions .fs-head-btn{flex:0 0 auto;}
       .fs-kpi{grid-template-columns: 1fr;}
       .fs-form{grid-template-columns: 1fr;}
       .fs-token{min-width: 260px;}
       .fs-media-grid{grid-template-columns: repeat(2, minmax(0,1fr));}
+      .fs-mobile-nav{display:grid;}
+      .fs-main{padding-bottom: calc(92px + var(--fs-safe-bottom));}
+      .fs-toasts{right: 10px; left: 10px; bottom: calc(76px + var(--fs-safe-bottom));}
+      .fs-toast{max-width:none; min-width: 0;}
     }
 
     .fs-lock{
@@ -1874,6 +1916,12 @@
 
       </main>
     </div>
+
+    <nav class="fs-mobile-nav" id="fsMobileNav" aria-label="Navigasi mobile">
+      <button class="fs-mobile-tab is-active" id="fsMobileTabDash" onclick="fsSetTab('dash')">MetaAds Data</button>
+      <button class="fs-mobile-tab" id="fsMobileTabAcc" onclick="fsSetTab('acc')">Meta Accounts</button>
+      <button class="fs-mobile-tab" id="fsMobileTabRoi" onclick="fsSetTab('roi')">ROI Today</button>
+    </nav>
 
     <div id="fsToastHost" class="fs-toasts"></div>
     <div id="fsCenterPopup" class="fs-center-pop" role="status" aria-live="polite">
@@ -3040,6 +3088,21 @@
           tRoi.classList.remove('is-active');
           tDash.classList.add('is-active');
         }
+        fsSyncTabState(tab);
+      }
+
+      function fsSyncTabState(tab){
+        const mobileTabs = {
+          dash: el('fsMobileTabDash'),
+          acc: el('fsMobileTabAcc'),
+          roi: el('fsMobileTabRoi')
+        };
+        Object.keys(mobileTabs).forEach(key => {
+          const node = mobileTabs[key];
+          if (!node) return;
+          if (key === tab) node.classList.add('is-active');
+          else node.classList.remove('is-active');
+        });
       }
 
       function fsApplyTheme(theme){
