@@ -1,0 +1,4561 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><?= APP_NAME ?></title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      /* Modern Color Palette - Indigo Theme */
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-soft: #eef2ff;
+      
+      --success: #10b981;
+      --success-soft: #ecfdf5;
+      
+      --danger: #ef4444;
+      --danger-soft: #fef2f2;
+      
+      --warning: #f59e0b;
+      --warning-soft: #fffbeb;
+      
+      --text-main: #111827;
+      --text-secondary: #6b7280;
+      --text-tertiary: #9ca3af;
+      
+      --bg-body: #f3f4f6;
+      --bg-card: #ffffff;
+      --border: #e5e7eb;
+      
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      
+      --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    }
+
+    /* Glassmorphism Effect */
+    .glass {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    }
+
+    /* Utility Classes */
+    .text-gradient {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    .slide-up {
+      animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Loading States */
+    .loading {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    *{box-sizing:border-box}
+    
+    body{
+      margin:0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+
+    .app{
+      max-width:1440px;
+      margin:0 auto;
+      padding:32px 24px;
+      min-height: 100vh;
+    }
+
+    /* Responsive Container */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    @media (max-width: 768px) {
+      .app {
+        padding: 24px 16px;
+      }
+      
+      .container {
+        padding: 0 12px;
+      }
+    }
+
+    /* Hero Section - Enhanced */
+    .hero{
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      margin-bottom: 32px;
+      box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.3), 0 10px 10px -5px rgba(79, 70, 229, 0.2);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      animation: rotate 15s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Status Connection Table */
+    .status-table-container {
+      margin-top: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      color: #fff;
+    }
+
+    .status-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.1);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .status-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .status-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Pulse Animation for Online Status */
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .status-indicator.online {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      position: relative;
+    }
+
+    .status-indicator.online::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #34d399;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+      animation: pulse-green 2s infinite;
+    }
+
+    @keyframes pulse-green {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(52, 211, 153, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+      }
+    }
+
+    .status-indicator.offline {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .status-indicator.offline::before {
+      content: '●';
+      margin-right: 4px;
+    }
+
+    .status-indicator.checking {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    
+    .status-indicator.checking::before {
+      content: '●';
+      margin-right: 4px;
+    }
+      /* KPI Grid - Enhanced */
+    .kpi-grid{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .kpi{
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--primary);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .kpi:hover{
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary);
+    }
+
+    .kpi:hover::before {
+      opacity: 1;
+    }
+
+    .kpi .label{
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .kpi .value{
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.1;
+      letter-spacing: -0.75px;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, var(--text-main) 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .kpi .note{
+      margin-top: 8px;
+      color: var(--text-tertiary);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 768px) {
+      .kpi-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      
+      .kpi {
+        padding: 24px 20px;
+      }
+      
+      .kpi .value {
+        font-size: 28px;
+      }
+    }
+
+    /* Cards & Components - Enhanced */
+    .card{
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 28px;
+      height: 100%; /* Equal height */
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .card-title{
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .card-title h3{
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.25px;
+      position: relative;
+    }
+
+    .card-title h3::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 32px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .sub{
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        padding: 24px 20px;
+      }
+      
+      .card-title {
+        margin-bottom: 20px;
+      }
+      
+      .card-title h3 {
+        font-size: 18px;
+      }
+    }
+
+    /* Forms - Enhanced */
+    .grid-2{
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .field{
+      position: relative;
+    }
+
+    .field label{
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .field input,
+    .field select{
+      width: 100%;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 15px;
+      background: #fff;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: inherit;
+    }
+
+    .field input:focus,
+    .field select:focus{
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--primary-soft);
+      transform: translateY(-1px);
+    }
+
+    .field input::placeholder,
+    .field select::placeholder {
+      color: var(--text-tertiary);
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      
+      .field input,
+      .field select {
+        padding: 14px 16px;
+        font-size: 16px;
+      }
+    }
+    
+    /* Buttons - Enhanced */
+    .actions{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    button{
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    button:hover{
+      transform: translateY(-2px);
+      filter: brightness(110%);
+      box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2);
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:active{
+      transform: translateY(0);
+      filter: brightness(95%);
+    }
+
+    .btn-primary{ 
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); 
+      color: #fff; 
+      box-shadow: 0 6px 12px -2px rgba(99, 102, 241, 0.3);
+    }
+    
+    .btn-soft{ 
+      background: var(--primary-soft); 
+      color: var(--primary); 
+      border: 1px solid var(--primary-soft);
+      box-shadow: 0 2px 4px -1px rgba(99, 102, 241, 0.1);
+    }
+    
+    .btn-success{ 
+      background: linear-gradient(135deg, var(--success) 0%, #059669 100%); 
+      color: #fff; 
+      box-shadow: 0 6px 12px -2px rgba(16, 185, 129, 0.3);
+    }
+    
+    .btn-danger{ 
+      background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%); 
+      color: #fff; 
+      box-shadow: 0 6px 12px -2px rgba(239, 68, 68, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .actions {
+        gap: 12px;
+      }
+      
+      button {
+        padding: 14px 20px;
+        font-size: 15px;
+        flex: 1;
+        min-width: 120px;
+      }
+    }
+
+    /* Account Grid System - Enhanced */
+    .account-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .account-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 160px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .account-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .account-card:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary);
+      transform: translateY(-4px);
+    }
+
+    .account-card:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .ac-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    
+    .ac-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .ac-name {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.25px;
+    }
+
+    .ac-id {
+      font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-body);
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      border: 1px solid var(--border);
+      font-weight: 500;
+    }
+
+    .ac-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .account-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      
+      .account-card {
+        padding: 20px;
+        min-height: 140px;
+      }
+      
+      .ac-name {
+        font-size: 15px;
+      }
+    }
+
+    .ac-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .ac-btn {
+      flex: 1;
+      padding: 6px;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .ac-btn-test { background: var(--primary-soft); color: var(--primary); }
+    .ac-btn-edit { background: #f3f4f6; color: var(--text-main); }
+    .ac-btn-del { background: var(--danger-soft); color: var(--danger); }
+    .ac-btn:hover { filter: brightness(0.95); }
+
+    .accounts-table{
+      width:100%;
+      min-width:0;
+    }
+
+    .acc-input{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:13px;
+      background:#fff;
+      outline:none;
+      transition:all .15s ease;
+      font-family:inherit;
+    }
+
+    .acc-input:focus{
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+
+    .acc-select{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:13px;
+      background:#fff;
+      outline:none;
+      font-family:inherit;
+    }
+
+    .table-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .table-actions .ac-btn{
+      flex:0;
+      padding:6px 10px;
+      border-radius:8px;
+    }
+
+    .status-badge{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-online{ background: var(--success-soft); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.1); }
+    .status-offline{ background: var(--danger-soft); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.1); }
+    .status-checking{ background: var(--warning-soft); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.1); }
+    
+    .status-note { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+    .trigger-note{
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      font-size: 13px;
+      color: #166534;
+    }
+
+    /* Charts */
+    .chart-wrap{
+      height: 300px;
+      position: relative;
+    }
+
+    /* Loader */
+    .loader{
+      display: none;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .loader.show{ display: flex; align-items: center; gap: 8px; }
+    .loader.show::before{
+      content: "";
+      width: 14px;
+      height: 14px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin{ to{transform: rotate(360deg);} }
+    
+    .table-shell{
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #fff;
+      max-height: 600px;
+      overflow: auto;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+    
+    .toolbar{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px){
+      .app{ padding: 16px; }
+      .kpi-grid{ grid-template-columns: 1fr; }
+      .hero{ padding: 24px; }
+      .hero h1{ font-size: 24px; }
+      .actions { flex-direction: column; }
+      button { width: 100%; }
+      .card-title { flex-direction: column; align-items: stretch; gap: 12px; }
+      .toolbar { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+  <style id="freshUI">
+    #freshShell{
+      --fs-bg: #F3F6FB;
+      --fs-bg1: rgba(10,102,255,0.10);
+      --fs-bg2: rgba(24,119,242,0.08);
+      --fs-surface: #FFFFFF;
+      --fs-surface2: #F1F5F9;
+      --fs-text: #0F172A;
+      --fs-muted: #64748B;
+      --fs-muted2: #94A3B8;
+      --fs-border: rgba(15,23,42,0.10);
+      --fs-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --fs-shadow-sm: 0 2px 10px rgba(15, 23, 42, 0.06);
+      --fs-radius: 14px;
+      --fs-radius-sm: 10px;
+      --fs-primary: #1877F2;
+      --fs-primary2: #0A66FF;
+      --fs-primary-soft: rgba(24,119,242,0.14);
+      --fs-success: #22C55E;
+      --fs-warning: #F59E0B;
+      --fs-danger: #EF4444;
+      --fs-success-soft: rgba(34,197,94,0.12);
+      --fs-warning-soft: rgba(245,158,11,0.14);
+      --fs-danger-soft: rgba(239,68,68,0.12);
+      color: var(--fs-text);
+      background:
+        radial-gradient(1100px 420px at 12% 12%, var(--fs-bg1), transparent 62%),
+        radial-gradient(1100px 420px at 88% 12%, var(--fs-bg2), transparent 62%),
+        var(--fs-bg);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    #freshShell[data-theme="dark"]{
+      --fs-bg: #0A1326;
+      --fs-bg1: rgba(24,119,242,0.26);
+      --fs-bg2: rgba(10,102,255,0.16);
+      --fs-surface: #111A2E;
+      --fs-surface2: rgba(255,255,255,0.06);
+      --fs-text: #E5E7EB;
+      --fs-muted: #94A3B8;
+      --fs-muted2: rgba(148,163,184,0.75);
+      --fs-border: rgba(148,163,184,0.18);
+      --fs-shadow: 0 18px 45px rgba(0,0,0,0.35);
+      --fs-shadow-sm: 0 8px 24px rgba(0,0,0,0.25);
+      --fs-primary-soft: rgba(24,119,242,0.24);
+      --fs-success-soft: rgba(34,197,94,0.16);
+      --fs-warning-soft: rgba(245,158,11,0.20);
+      --fs-danger-soft: rgba(239,68,68,0.18);
+    }
+
+    body > .app{display:none;}
+
+    #freshShell *{box-sizing:border-box}
+    #freshShell a{color:inherit}
+
+    .fs-wrap{max-width: 1440px; margin: 0 auto;}
+
+    .fs-topbar{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: grid;
+      gap: 10px;
+      padding: 14px 16px;
+      border: 1px solid var(--fs-border);
+      border-radius: var(--fs-radius);
+      background: linear-gradient(135deg, color-mix(in oklab, var(--fs-surface) 92%, transparent), color-mix(in oklab, var(--fs-primary-soft) 24%, transparent));
+      backdrop-filter: blur(10px);
+      box-shadow: var(--fs-shadow-sm);
+    }
+    .fs-top-main{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+    .fs-top-meta{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+    .fs-top-nav{display:flex; align-items:center; gap:12px;}
+    .fs-top-nav-center{flex:1; display:flex; justify-content:center;}
+    .fs-top-nav-actions{display:flex; align-items:center; gap:10px; margin-left:auto; flex-wrap:wrap;}
+
+    .fs-brand{display:flex; align-items:center; gap:12px; min-width: 320px;}
+    .fs-brand-logos{display:flex; align-items:center; gap:10px;}
+    .fs-logo-google{width:26px; height:26px; object-fit: contain;}
+    .fs-logo-meta{width:34px; height:auto; object-fit: contain;}
+    .fs-logo-trend{height:30px; width:auto; max-width: 140px; object-fit: contain;}
+    .fs-brand-title{font-size: 15px; font-weight: 800; letter-spacing: -0.2px;}
+    .fs-brand-ver{font-size: 12px; color: var(--fs-muted); font-weight: 700;}
+
+    .fs-tabs{display:flex; gap:6px; padding: 4px; border-radius: 999px; background: var(--fs-surface2); border:1px solid var(--fs-border);}
+    .fs-tab{
+      appearance:none;
+      border:none;
+      background: transparent;
+      color: var(--fs-muted);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 140ms ease, color 140ms ease;
+    }
+    .fs-tab.is-active{background: var(--fs-surface); color: var(--fs-text); box-shadow: 0 1px 0 rgba(0,0,0,0.04);}
+
+    .fs-chips{display:flex; gap:8px; align-items:center; flex-wrap: wrap;}
+
+    .fs-btn{
+      appearance:none;
+      border: 1px solid var(--fs-border);
+      background: var(--fs-surface);
+      color: var(--fs-text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      white-space: nowrap;
+    }
+    .fs-btn:hover{transform: translateY(-1px);}
+    .fs-btn:active{transform: translateY(0);}
+    .fs-btn.primary{background: var(--fs-primary); color:#fff; border-color: rgba(79,70,229,0.25);}
+    .fs-btn.soft{background: var(--fs-primary-soft); border-color: rgba(79,70,229,0.18);}
+    .fs-btn.ghost{background: transparent;}
+    .fs-btn.google{background: rgba(14,165,233,0.14); border-color: rgba(14,165,233,0.32); color: #075985;}
+    .fs-btn.refresh{background: rgba(59,130,246,0.16); border-color: rgba(59,130,246,0.34); color: #1d4ed8;}
+    .fs-btn.range{background: rgba(16,185,129,0.16); border-color: rgba(16,185,129,0.34); color: #047857;}
+    .fs-btn.updateall{background: rgba(245,158,11,0.16); border-color: rgba(245,158,11,0.34); color: #b45309;}
+    .fs-head-btn{
+      border:none;
+      background:transparent;
+      padding:6px 6px;
+      border-radius:8px;
+      box-shadow:none;
+      font-weight:800;
+    }
+    .fs-head-btn:hover{transform:none; filter:brightness(.95);}
+    .fs-head-btn:active{transform:none;}
+    .fs-top-nav-actions .fs-head-btn + .fs-head-btn{border-left:1px solid var(--fs-border); padding-left:10px; margin-left:2px;}
+
+    .fs-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid var(--fs-border);
+      background: var(--fs-surface);
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--fs-text);
+    }
+    .fs-chip.success{background: var(--fs-success-soft);}
+    .fs-chip.warning{background: var(--fs-warning-soft);}
+    .fs-chip.danger{background: var(--fs-danger-soft);}
+    .fs-top-meta .fs-chip{
+      border:none;
+      background:transparent;
+      border-radius:0;
+      padding:0;
+      font-size:12px;
+      font-weight:850;
+    }
+    .fs-top-meta .fs-chip.success,
+    .fs-top-meta .fs-chip.warning,
+    .fs-top-meta .fs-chip.danger{background:transparent;}
+
+    .fs-dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
+    .fs-dot.success{background: var(--fs-success); box-shadow: 0 0 0 0 rgba(34,197,94,0.55); animation: fsPulse 1.8s infinite;}
+    .fs-dot.danger{background: var(--fs-danger);}
+    .fs-dot.warning{background: var(--fs-warning);}
+    @keyframes fsPulse{0%{box-shadow: 0 0 0 0 rgba(34,197,94,0.55);}70%{box-shadow: 0 0 0 10px rgba(34,197,94,0);}100%{box-shadow: 0 0 0 0 rgba(34,197,94,0);}}
+
+    .fs-main{padding: 18px 0 28px;}
+    .fs-panel{display:none;}
+    .fs-panel.is-active{display:block;}
+
+    .fs-grid{display:grid; gap: 14px;}
+    .fs-kpi{grid-template-columns: repeat(4, minmax(0,1fr));}
+    .fs-charts{grid-template-columns: repeat(2, minmax(0,1fr));}
+
+    .fs-card{
+      background: var(--fs-surface);
+      border: 1px solid var(--fs-border);
+      border-radius: var(--fs-radius);
+      box-shadow: var(--fs-shadow-sm);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .fs-card:before{
+      content:'';
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background: linear-gradient(160deg, color-mix(in oklab, var(--fs-primary-soft) 35%, transparent), transparent 40%);
+      opacity:.6;
+    }
+    .fs-card-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap: wrap; margin-bottom: 12px;}
+    .fs-title{font-size: 14px; font-weight: 900; letter-spacing: -0.2px;}
+    .fs-sub{font-size: 12px; color: var(--fs-muted); margin-top: 4px;}
+
+    .fs-kpi-label{font-size: 12px; color: var(--fs-muted); font-weight: 900; text-transform: uppercase; letter-spacing: .08em;}
+    .fs-kpi-val{font-size: 26px; font-weight: 950; margin-top: 6px; font-variant-numeric: tabular-nums;}
+    .fs-kpi-note{font-size: 12px; color: var(--fs-muted2); margin-top: 6px;}
+    .fs-roi-kpi{
+      background: linear-gradient(140deg, rgba(16,185,129,0.18), rgba(24,119,242,0.12));
+      border: 1px solid rgba(16,185,129,0.3);
+    }
+    .fs-roi-kpi .fs-kpi-label{color: color-mix(in oklab, var(--fs-success) 70%, var(--fs-muted));}
+    .fs-roi-kpi.state-low{background: linear-gradient(140deg, rgba(239,68,68,0.14), rgba(251,113,133,0.10)); border-color: rgba(239,68,68,0.34);}
+    .fs-roi-kpi.state-mid{background: linear-gradient(140deg, rgba(245,158,11,0.14), rgba(250,204,21,0.10)); border-color: rgba(245,158,11,0.34);}
+    .fs-roi-kpi.state-high{background: linear-gradient(140deg, rgba(16,185,129,0.18), rgba(34,197,94,0.11)); border-color: rgba(16,185,129,0.34);}
+    .fs-roi-table td,.fs-roi-table th{font-size:12px;}
+    .fs-roi-badge{display:inline-flex; align-items:center; justify-content:center; min-width:88px; padding:4px 8px; border-radius:999px; font-weight:900; font-size:12px;}
+    .fs-roi-low{background: rgba(239,68,68,0.18); color: #b91c1c;}
+    .fs-roi-mid{background: rgba(245,158,11,0.18); color: #92400e;}
+    .fs-roi-high{background: rgba(16,185,129,0.18); color: #065f46;}
+    .fs-sync-strip{
+      border:1px solid var(--fs-border);
+      border-radius:12px;
+      background: color-mix(in oklab, var(--fs-primary-soft) 32%, var(--fs-surface));
+      padding:10px 12px;
+      margin-bottom:12px;
+      font-size:12px;
+      font-weight:800;
+      color: var(--fs-muted);
+    }
+    .fs-sync-strip strong{color: var(--fs-text);}
+    .fs-roi-actions{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+
+    .fs-form{display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px;}
+    .fs-tool-grid{display:grid; grid-template-columns: 1fr; gap: 14px;}
+    .fs-field label{display:block; font-size: 12px; color: var(--fs-muted); font-weight: 900; margin-bottom: 6px;}
+    .fs-input, .fs-select{
+      width:100%;
+      border:1px solid var(--fs-border);
+      background: var(--fs-surface);
+      color: var(--fs-text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      outline: none;
+      transition: border-color 140ms ease, box-shadow 140ms ease;
+    }
+    .fs-input:focus, .fs-select:focus{border-color: rgba(79,70,229,0.55); box-shadow: 0 0 0 4px rgba(79,70,229,0.15);}
+
+    .fs-row{display:flex; align-items:center; justify-content:space-between; gap: 10px; flex-wrap: wrap; margin-top: 12px;}
+    .fs-row-left{display:flex; gap:10px; align-items:center; flex-wrap: wrap;}
+    .fs-row-right{display:flex; gap:10px; align-items:center; flex-wrap: wrap;}
+
+    .fs-table{border:1px solid var(--fs-border); border-radius: 14px; overflow:auto; background: color-mix(in oklab, var(--fs-surface) 90%, transparent);}
+    .fs-table table{width:100%; border-collapse: separate; border-spacing: 0; font-size: 13px;}
+    .fs-table th{position: sticky; top: 0; background: color-mix(in oklab, var(--fs-surface) 94%, transparent); backdrop-filter: blur(8px); text-align:left; color: var(--fs-muted); font-weight: 950; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid var(--fs-border); padding: 12px 12px; white-space: nowrap;}
+    .fs-table td{border-bottom: 1px solid var(--fs-border); padding: 12px 12px; vertical-align: middle; white-space: nowrap; font-variant-numeric: tabular-nums;}
+    .fs-table tbody tr:nth-child(even) td{background: color-mix(in oklab, var(--fs-surface2) 35%, transparent);}
+    .fs-table tr:hover td{background: color-mix(in oklab, var(--fs-surface2) 70%, transparent);}
+    .fs-table tr:last-child td{border-bottom: none;}
+    .fs-cell-campaign{
+      max-width: 420px;
+      white-space: normal;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .fs-code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; background: var(--fs-surface2); border:1px solid var(--fs-border); padding: 2px 6px; border-radius: 8px; color: var(--fs-text);}
+    .fs-right{text-align:right;}
+    .fs-muted{color: var(--fs-muted);}
+
+    .fs-chart{height: 280px;}
+
+    .fs-status{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 950;
+      border:1px solid var(--fs-border);
+      background: var(--fs-surface);
+    }
+    .fs-status.connected{background: var(--fs-success-soft);}
+    .fs-status.disconnected{background: var(--fs-danger-soft);}
+    .fs-status.checking{background: var(--fs-warning-soft);}
+
+    .fs-mini{
+      appearance:none;
+      border:1px solid var(--fs-border);
+      background: var(--fs-surface);
+      color: var(--fs-text);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 950;
+      cursor: pointer;
+      transition: transform 140ms ease;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+    }
+    .fs-mini:hover{transform: translateY(-1px);}
+    .fs-mini.primary{background: var(--fs-primary); border-color: rgba(79,70,229,0.25); color:#fff;}
+    .fs-mini.soft{background: var(--fs-primary-soft); border-color: rgba(79,70,229,0.18);}
+    .fs-mini.danger{background: var(--fs-danger-soft); border-color: rgba(239,68,68,0.25);}
+    .fs-mini.brand{background: color-mix(in oklab, var(--fs-primary) 16%, white); border-color: rgba(24,119,242,0.28); color: var(--fs-primary2);}
+    .fs-mini.pct{padding:6px 8px; border-radius:8px; font-size:11px;}
+    .fs-mini.pct.primary{background: var(--fs-primary-soft); color: var(--fs-primary);}
+    .fs-mini.slim{padding:6px 9px; border-radius:8px; font-size:11px;}
+
+    .fs-token{display:flex; align-items:center; gap:8px; min-width: 320px;}
+    .fs-token input{flex:1;}
+    .fs-toggle{
+      width:42px;
+      height:24px;
+      border-radius:999px;
+      border:1px solid var(--fs-border);
+      background: color-mix(in oklab, var(--fs-surface2) 75%, transparent);
+      position:relative;
+      cursor:pointer;
+      transition:all .15s ease;
+    }
+    .fs-toggle:before{
+      content:'';
+      position:absolute;
+      left:2px;
+      top:2px;
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:#fff;
+      box-shadow:0 1px 3px rgba(0,0,0,.2);
+      transition:all .15s ease;
+    }
+    .fs-toggle.on{
+      background: var(--fs-success-soft);
+      border-color: rgba(34,197,94,0.4);
+    }
+    .fs-toggle.on:before{left:20px; background: var(--fs-success);}
+    .fs-pct-wrap{display:grid; gap:8px;}
+    .fs-up-row{display:flex; gap:6px; align-items:center; flex-wrap:wrap;}
+    .fs-up-row .fs-input{height:34px;}
+    .fs-up-row .fs-mini{height:34px;}
+    .fs-budget-live{display:grid; gap:6px;}
+    .fs-budget-live .fs-input{height:34px; text-align:right; font-weight:800;}
+    .fs-budget-live .fs-mini{height:34px;}
+    .fs-camp-actions{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-width:120px;
+    }
+    .fs-camp-actions .fs-mini{width:100%;}
+
+    .fs-acc-summary{
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--fs-border);
+      background: linear-gradient(120deg, color-mix(in oklab, var(--fs-primary-soft) 70%, transparent), color-mix(in oklab, var(--fs-surface) 85%, transparent));
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap: wrap;
+    }
+    .fs-acc-summary .left{font-size:12px; color: var(--fs-muted); font-weight: 900;}
+    .fs-acc-summary .vals{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+
+    .fs-loader{display:none; align-items:center; gap:8px; color: var(--fs-muted); font-size: 12px; font-weight: 900;}
+    .fs-loader.is-show{display:inline-flex;}
+    .fs-spin{width:14px; height:14px; border-radius:999px; border:2px solid currentColor; border-top-color: transparent; animation: fsSpin 0.8s linear infinite;}
+    @keyframes fsSpin{to{transform: rotate(360deg);}}
+
+    .fs-toasts{position: fixed; right: 16px; bottom: 16px; display:flex; flex-direction: column; gap: 10px; z-index: 80;}
+    .fs-toast{min-width: 280px; max-width: 360px; border:1px solid var(--fs-border); border-radius: 14px; padding: 12px 12px; background: var(--fs-surface); box-shadow: var(--fs-shadow);}
+    .fs-toast-title{font-size: 12px; font-weight: 950;}
+    .fs-toast-msg{font-size: 12px; color: var(--fs-muted); margin-top: 4px;}
+    .fs-center-pop{
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(.98);
+      min-width: 320px;
+      max-width: min(92vw, 520px);
+      border:1px solid var(--fs-border);
+      border-radius: 14px;
+      background: var(--fs-surface);
+      box-shadow: var(--fs-shadow);
+      padding: 14px 16px;
+      z-index: 120;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .fs-center-pop.is-show{opacity:1; transform: translate(-50%, -50%) scale(1);}
+    .fs-center-pop-title{font-size: 13px; font-weight: 950;}
+    .fs-center-pop-msg{font-size: 12px; color: var(--fs-muted); margin-top: 6px; line-height:1.45;}
+    .fs-console{
+      border:1px solid var(--fs-border);
+      border-radius:12px;
+      background:#0b1220;
+      color:#dbeafe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      line-height:1.5;
+      padding:10px;
+      height:280px;
+      overflow:auto;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+    .fs-console-line{padding:2px 0; border-bottom:1px dashed rgba(255,255,255,.08);}
+    .fs-console-line:last-child{border-bottom:none;}
+
+    .fs-confirm{
+      position: fixed;
+      inset: 0;
+      z-index: 220;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(2,6,23,0.42);
+      backdrop-filter: blur(4px);
+    }
+    .fs-confirm.is-show{display:flex;}
+    .fs-confirm-card{
+      width: min(520px, 96vw);
+      border-radius: 18px;
+      border:1px solid var(--fs-border);
+      background: linear-gradient(145deg, color-mix(in oklab, var(--fs-surface) 92%, transparent), color-mix(in oklab, var(--fs-primary-soft) 26%, transparent));
+      box-shadow: 0 22px 56px rgba(2,6,23,0.28);
+      padding: 18px;
+    }
+    .fs-confirm-title{font-size:16px; font-weight:950; letter-spacing:-0.2px;}
+    .fs-confirm-msg{margin-top:10px; font-size:13px; color:var(--fs-muted); line-height:1.45; white-space: pre-line;}
+    .fs-confirm-actions{margin-top:16px; display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;}
+    .fs-camp-link{
+      appearance:none;
+      border:none;
+      background:transparent;
+      padding:0;
+      margin:0;
+      color: var(--fs-primary2);
+      font-weight:900;
+      cursor:pointer;
+      text-align:left;
+    }
+    .fs-camp-link:hover{text-decoration:underline;}
+    .fs-detail{
+      position: fixed;
+      inset: 0;
+      z-index: 130;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(2,6,23,0.45);
+      backdrop-filter: blur(4px);
+    }
+    .fs-detail.is-show{display:flex;}
+    .fs-detail-card{
+      width:min(1220px, 98vw);
+      max-height: 88vh;
+      overflow:auto;
+      border-radius: 18px;
+      border:1px solid var(--fs-border);
+      background: var(--fs-surface);
+      box-shadow: 0 24px 60px rgba(2,6,23,0.30);
+      padding: 16px;
+    }
+    .fs-detail-grid{display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px;}
+    .fs-detail-block{border:1px solid var(--fs-border); border-radius:12px; padding:10px; background: color-mix(in oklab, var(--fs-surface2) 40%, transparent);}
+    .fs-detail-label{font-size:11px; color:var(--fs-muted); font-weight:900; text-transform:uppercase; letter-spacing:.08em;}
+    .fs-detail-value{margin-top:6px; font-size:13px; font-weight:800; line-height:1.35; white-space: normal;}
+    .fs-media-grid{display:grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap:8px;}
+    .fs-media-item{border:1px solid var(--fs-border); border-radius:10px; overflow:hidden; background:var(--fs-surface2);}
+    .fs-media-item img{width:100%; height:88px; object-fit:cover; display:block;}
+    .fs-list5{display:grid; gap:6px;}
+    .fs-list5 input{font-size:12px; padding:8px 9px;}
+    .fs-detail-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      padding:12px;
+      border:1px solid var(--fs-border);
+      border-radius:14px;
+      background: linear-gradient(140deg, color-mix(in oklab, var(--fs-primary-soft) 30%, transparent), color-mix(in oklab, var(--fs-surface2) 70%, transparent));
+    }
+    .fs-stat-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;}
+    .fs-stat-chip{padding:6px 10px; border-radius:999px; border:1px solid var(--fs-border); background:var(--fs-surface);}
+    .fs-detail-layout{display:grid; grid-template-columns: 340px 1fr; gap:12px; margin-top:12px;}
+    .fs-pane{border:1px solid var(--fs-border); border-radius:12px; background:var(--fs-surface); padding:10px;}
+    .fs-pane-title{font-size:12px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; color:var(--fs-muted); margin-bottom:8px;}
+    .fs-meta-cards{display:grid; gap:10px;}
+    .fs-meta-card{border:1px solid var(--fs-border); border-radius:12px; padding:10px; background: color-mix(in oklab, var(--fs-surface2) 50%, transparent);}
+    .fs-meta-card-head{display:flex; justify-content:space-between; align-items:center; gap:8px;}
+    .fs-meta-grid{display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:8px; margin-top:8px;}
+    .fs-meta-field{border:1px solid var(--fs-border); border-radius:10px; background:var(--fs-surface); padding:8px;}
+    .fs-meta-label{font-size:10px; color:var(--fs-muted); font-weight:900; text-transform:uppercase; letter-spacing:.08em;}
+    .fs-meta-val{margin-top:4px; font-size:12px; line-height:1.35; white-space:normal;}
+    .fs-meta-media{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
+    .fs-meta-media img{width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid var(--fs-border);}
+
+    @media (max-width: 1100px){
+      .fs-kpi{grid-template-columns: repeat(2, minmax(0,1fr));}
+      .fs-form{grid-template-columns: repeat(2, minmax(0,1fr));}
+      .fs-tool-grid{grid-template-columns: 1fr;}
+      .fs-charts{grid-template-columns: 1fr;}
+      .fs-brand{min-width: auto;}
+      .fs-media-grid{grid-template-columns: repeat(4, minmax(0,1fr));}
+      .fs-detail-layout{grid-template-columns: 1fr;}
+      .fs-meta-grid{grid-template-columns: 1fr;}
+    }
+
+    @media (max-width: 760px){
+      #freshShell{padding: 12px;}
+      .fs-top-main{justify-content:center;}
+      .fs-top-meta{justify-content:center;}
+      .fs-top-nav{flex-direction:column; align-items:stretch;}
+      .fs-top-nav-center{order:1;}
+      .fs-top-nav-actions{order:2; justify-content:center; margin-left:0;}
+      .fs-kpi{grid-template-columns: 1fr;}
+      .fs-form{grid-template-columns: 1fr;}
+      .fs-token{min-width: 260px;}
+      .fs-media-grid{grid-template-columns: repeat(2, minmax(0,1fr));}
+    }
+
+    .fs-lock{
+      min-height: 100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      background:
+        linear-gradient(145deg, rgba(9,40,118,.35) 0%, rgba(14,88,216,.25) 55%, rgba(62,165,255,.20) 100%),
+        url('https://wallpaperbat.com/img/88134440-abstract-light-blue-background.jpg') center/cover no-repeat;
+    }
+    .fs-lock-wrap{
+      width:min(520px, 96vw);
+      display:grid;
+      justify-items:center;
+      gap:14px;
+    }
+    .fs-lock-logo-row{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+    }
+    .fs-lock-logo-google{width:34px; height:34px; object-fit:contain;}
+    .fs-lock-logo-meta{width:62px; height:auto; object-fit:contain;}
+    .fs-lock-logo-trend{height:34px; width:auto; max-width:180px; object-fit:contain;}
+    .fs-lock-card{
+      width:min(460px, 96vw);
+      border:1px solid rgba(255,255,255,.32);
+      border-radius:20px;
+      background: rgba(255,255,255,.93);
+      box-shadow: 0 28px 64px rgba(2,6,23,0.25);
+      padding: 22px;
+      display:grid;
+      justify-items:center;
+      text-align:center;
+    }
+    .fs-lock-title{font-size:20px; font-weight:950; letter-spacing:-0.25px; color:#0f172a;}
+    .fs-lock-sub{margin-top:4px; color:#334155; font-size:13px; font-weight:700;}
+    .fs-lock-form{margin-top:14px; display:grid; gap:10px; width:100%;}
+    .fs-lock-form .fs-input{
+      height:44px;
+      text-align:center;
+      font-size:16px;
+      font-weight:900;
+      border:1px solid #bfd7ff;
+      color:#0f172a;
+      background:#fff;
+    }
+    .fs-lock-btn{
+      width:100%;
+      justify-content:center;
+      height:42px;
+      font-size:13px;
+      font-weight:950;
+      border:1px solid rgba(14,84,255,.22);
+      color:#fff;
+      background: linear-gradient(130deg, #1757ff 0%, #0ea5ff 100%);
+    }
+    .fs-lock-btn:hover{filter: brightness(1.02);}
+    .fs-lock-error{font-size:12px; color:#dc2626; min-height:16px; font-weight:800;}
+
+    .app{display:none !important;}
+  </style>
+</head>
+<body>
+  <div id="fsLockScreen" class="fs-lock">
+    <div class="fs-lock-wrap">
+      <div class="fs-lock-card">
+        <div class="fs-lock-logo-row">
+          <img class="fs-lock-logo-google" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/500px-Google_%22G%22_logo.svg.png" alt="Google Logo" onerror="this.style.display='none'" />
+          <img class="fs-lock-logo-meta" src="https://static.cdnlogo.com/logos/m/59/meta.svg" alt="Meta Logo" onerror="this.style.display='none'" />
+          <img class="fs-lock-logo-trend" src="https://trendhorizone.id/wp-content/uploads/2024/07/174135616958657596.png" alt="Trend Horizon Logo" onerror="this.style.display='none'" />
+        </div>
+        <div class="fs-lock-title">Revenue Performance 2026 - PT Tren Gen Horizon</div>
+        <div class="fs-lock-sub">Masukkan PIN untuk mengakses dashboard.</div>
+        <div class="fs-lock-form">
+          <input class="fs-input" id="fsLockPin" type="password" inputmode="numeric" placeholder="Masukkan PIN" />
+          <button class="fs-btn fs-lock-btn" type="button" onclick="fsUnlockApp()">Buka Dashboard</button>
+          <div class="fs-lock-error" id="fsLockError"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="freshShell" data-theme="light" style="display:none;">
+    <div class="fs-wrap">
+      <header class="fs-topbar">
+        <div class="fs-top-main">
+          <div class="fs-brand">
+            <div class="fs-brand-logos">
+              <img class="fs-logo-google" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/500px-Google_%22G%22_logo.svg.png" alt="Google Logo" onerror="this.style.display='none'" />
+              <img class="fs-logo-meta" src="https://static.cdnlogo.com/logos/m/59/meta.svg" alt="Meta Logo" onerror="this.style.display='none'" />
+              <img class="fs-logo-trend" src="https://trendhorizone.id/wp-content/uploads/2024/07/174135616958657596.png" alt="Trend Horizon Logo" onerror="this.style.display='none'" />
+            </div>
+            <div>
+              <div class="fs-brand-title">Revenue Performance 2026 - PT Tren Gen Horizon</div>
+              <div class="fs-brand-ver">Revenue Performance 2026 - v<?= APP_VERSION ?></div>
+            </div>
+          </div>
+          <div class="fs-top-meta">
+            <div id="fsConnChips" class="fs-chips"></div>
+            <span class="fs-chip" id="fsUserChip">User: loading...</span>
+            <button class="fs-btn fs-head-btn ghost" id="fsThemeBtn" onclick="fsToggleTheme()">Theme</button>
+          </div>
+        </div>
+        <div class="fs-top-nav">
+          <div class="fs-top-nav-center">
+            <div class="fs-tabs">
+              <button class="fs-tab is-active" id="fsTabDash" onclick="fsSetTab('dash')">MetaAds Data</button>
+              <button class="fs-tab" id="fsTabAcc" onclick="fsSetTab('acc')">Meta Accounts</button>
+              <button class="fs-tab" id="fsTabRoi" onclick="fsSetTab('roi')">ROI Today</button>
+            </div>
+          </div>
+          <div class="fs-top-nav-actions">
+            <button class="fs-btn fs-head-btn google" onclick="fsRunUpdateGoogleEarning()">Update Google Earning</button>
+            <button class="fs-btn fs-head-btn refresh" onclick="fsRunSyncRecent()">Refresh Last 2 Days</button>
+            <button class="fs-btn fs-head-btn range" onclick="fsRunSync()">Run Range Sync</button>
+            <button class="fs-btn fs-head-btn updateall" onclick="fsRunUpdateAll()">Update All</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="fs-main">
+        <section id="fsPanelDash" class="fs-panel is-active">
+          <div class="fs-sync-strip" id="fsSyncInfoDash">Last Sync: - • By: - • Action: -</div>
+          <div class="fs-grid fs-kpi">
+            <div class="fs-card">
+              <div class="fs-kpi-label">Total Spend</div>
+              <div class="fs-kpi-val" id="fsSumSpend">0</div>
+              <div class="fs-kpi-note">Akumulasi data terfilter</div>
+            </div>
+            <div class="fs-card">
+              <div class="fs-kpi-label">Total Budget</div>
+              <div class="fs-kpi-val" id="fsSumBudget">0</div>
+              <div class="fs-kpi-note">Budget campaign terbaca</div>
+            </div>
+            <div class="fs-card">
+              <div class="fs-kpi-label">Total Click</div>
+              <div class="fs-kpi-val" id="fsSumClick">0</div>
+              <div class="fs-kpi-note">Click dari data hasil filter</div>
+            </div>
+            <div class="fs-card">
+              <div class="fs-kpi-label">Avg CPR</div>
+              <div class="fs-kpi-val" id="fsSumCpr">0</div>
+              <div class="fs-kpi-note">Spend ÷ Click</div>
+            </div>
+          </div>
+
+          <div class="fs-card">
+            <div class="fs-card-head">
+              <div>
+                <div class="fs-title">Filter</div>
+                <div class="fs-sub">Atur tanggal, site, dan akun untuk menampilkan data</div>
+              </div>
+              <div class="fs-row-right">
+                <span class="fs-loader" id="fsDashLoader"><span class="fs-spin"></span>Memuat data...</span>
+                <button class="fs-mini soft" onclick="fsResetFilter()">Reset</button>
+                <button class="fs-mini primary" onclick="fsLoadDashboard()">Terapkan</button>
+              </div>
+            </div>
+
+            <div class="fs-form">
+              <div class="fs-field">
+                <label>Start Date</label>
+                <input class="fs-input" type="date" id="fsFilterStart" />
+              </div>
+              <div class="fs-field">
+                <label>End Date</label>
+                <input class="fs-input" type="date" id="fsFilterEnd" />
+              </div>
+              <div class="fs-field">
+                <label>Site</label>
+                <select class="fs-select" id="fsFilterSite"><option value="">Semua Site</option></select>
+              </div>
+              <div class="fs-field">
+                <label>Account</label>
+                <select class="fs-select" id="fsFilterAccount"><option value="">Semua Account</option></select>
+              </div>
+            </div>
+          </div>
+
+
+
+          <div class="fs-grid fs-charts">
+            <div class="fs-card">
+              <div class="fs-card-head">
+                <div>
+                  <div class="fs-title">Spend per Tanggal</div>
+                  <div class="fs-sub">Tren pengeluaran harian</div>
+                </div>
+              </div>
+              <div class="fs-chart"><canvas id="fsChartDate"></canvas></div>
+            </div>
+
+            <div class="fs-card">
+              <div class="fs-card-head">
+                <div>
+                  <div class="fs-title">Top Site by Spend</div>
+                  <div class="fs-sub">Top 15 site dengan pengeluaran terbesar</div>
+                </div>
+              </div>
+              <div class="fs-chart"><canvas id="fsChartSite"></canvas></div>
+            </div>
+          </div>
+
+          <div class="fs-card">
+            <div class="fs-card-head">
+              <div>
+                <div class="fs-title">Kontrol Campaign</div>
+                <div class="fs-sub">Kelola status ON/OFF, scale up persen, dan scale up nominal dalam satu layar</div>
+              </div>
+              <div class="fs-row-right">
+                <span class="fs-loader" id="fsCampBudgetLoader"><span class="fs-spin"></span>Memuat campaign...</span>
+                <button class="fs-mini soft" type="button" onclick="fsLoadCampaignOptions()">Refresh Campaign</button>
+              </div>
+            </div>
+
+            <div class="fs-form" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+              <div class="fs-field">
+                <label>Akun Iklan</label>
+                <select class="fs-select" id="fsBudgetAccount" onchange="fsLoadCampaignOptions()"></select>
+              </div>
+              <div class="fs-field">
+                <label>Tampilkan</label>
+                <select class="fs-select" id="fsBudgetShowInactive" onchange="fsLoadCampaignOptions()">
+                  <option value="FALSE">Campaign Aktif Saja</option>
+                  <option value="TRUE">Semua Campaign</option>
+                </select>
+              </div>
+              <div class="fs-field">
+                <label>Preset Up Budget</label>
+                <div class="fs-sub" style="margin-top:10px;">20% • 30% • 50% • 100% + custom persen</div>
+              </div>
+            </div>
+
+            <div class="fs-table" style="margin-top:12px; max-height: 460px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:110px;">Status</th>
+                    <th>Campaign</th>
+                    <th style="width:160px;">Budget Type</th>
+                    <th class="fs-right" style="width:220px;">Current Budget</th>
+                    <th style="width:430px;">Up Budget</th>
+                    <th style="width:130px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="fsCampaignCtrlBody">
+                  <tr><td colspan="6" class="fs-muted" style="text-align:center; padding: 24px;">Pilih akun untuk memuat campaign...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="fs-card">
+            <div class="fs-card-head">
+              <div>
+                <div class="fs-title">Data Result</div>
+                <div class="fs-sub">Tanggal, akun, campaign, site, budget, spend, CPR, click</div>
+              </div>
+              <div class="fs-row-right">
+                <span class="fs-loader" id="fsTableLoader"><span class="fs-spin"></span>Memuat tabel...</span>
+              </div>
+            </div>
+
+            <div class="fs-table" style="max-height: 600px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Account Name</th>
+                    <th>Campaign Name</th>
+                    <th>Site Name</th>
+                    <th class="fs-right">Total Budget</th>
+                    <th class="fs-right">Total Spend</th>
+                    <th class="fs-right">CPR</th>
+                    <th class="fs-right">Total Click</th>
+                  </tr>
+                </thead>
+                <tbody id="fsDataBody">
+                  <tr><td colspan="8" class="fs-muted" style="text-align:center; padding: 24px;">Memuat data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="fs-card">
+            <div class="fs-card-head">
+              <div>
+                <div class="fs-title">Notifikasi Akun</div>
+                <div class="fs-sub">Alert otomatis per akun untuk indikasi masalah pembayaran dan set iklan</div>
+                <div class="fs-sub" id="fsAlertInfo" style="margin-top:2px;">Memuat notifikasi akun...</div>
+              </div>
+              <div class="fs-row-right">
+                <button class="fs-mini soft" type="button" onclick="fsLoadAccountAlerts()">Refresh Alert</button>
+                <button class="fs-mini brand" type="button" onclick="fsSendAlertEmail()">Kirim ke Email</button>
+              </div>
+            </div>
+
+            <div class="fs-table" style="max-height: 260px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:220px;">Akun</th>
+                    <th style="width:110px;">Tipe</th>
+                    <th style="width:110px;">Severity</th>
+                    <th style="width:220px;">Entity</th>
+                    <th>Keterangan</th>
+                  </tr>
+                </thead>
+                <tbody id="fsAlertBody">
+                  <tr><td colspan="5" class="fs-muted" style="text-align:center; padding: 20px;">Memuat alert...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="fs-card">
+            <div class="fs-card-head">
+              <div>
+                <div class="fs-title">System Logs</div>
+                <div class="fs-sub">Realtime stream from app tracker and Google logs</div>
+                <div class="fs-sub" id="fsLiveLogInfo" style="margin-top:2px;">Live log: preparing...</div>
+              </div>
+              <div class="fs-row-right">
+                <button class="fs-mini soft" type="button" onclick="fsLoadActivityLogs()">Refresh</button>
+                <button class="fs-mini danger" type="button" onclick="fsClearTrackerLogs()">Clear</button>
+              </div>
+            </div>
+            <div id="fsActivityBody" class="fs-console"></div>
+          </div>
+        </section>
+
+        <section id="fsPanelRoi" class="fs-panel">
+          <div class="fs-sync-strip" id="fsSyncInfoRoi">Last Sync: - • By: - • Action: -</div>
+          <div class="fs-card">
+            <div class="fs-card-head">
+              <div>
+                <div class="fs-title">ROI Today</div>
+                <div class="fs-sub">Independent date reference for ROI Today</div>
+                <div class="fs-sub" id="fsRoiRangeInfo" style="margin-top:2px;">Range: loading...</div>
+              </div>
+              <div class="fs-row-right fs-roi-actions">
+                <button class="fs-mini soft" type="button" onclick="fsLoadRoiToday()">Refresh ROI</button>
+                <button class="fs-mini soft" type="button" onclick="fsCopyRoiUnderperformReport()">Copy Report ROI Underperform</button>
+                <button class="fs-mini soft" type="button" onclick="fsCopyRoiScaleupReport()">Copy Report Recommendation to Scale Up</button>
+              </div>
+            </div>
+            <div class="fs-form" style="grid-template-columns:repeat(3,minmax(0,1fr)); margin-top:8px; margin-bottom:14px;">
+              <div class="fs-field">
+                <label>ROI Start Date</label>
+                <input class="fs-input" type="date" id="fsRoiStart" />
+              </div>
+              <div class="fs-field">
+                <label>ROI End Date</label>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <input class="fs-input" type="date" id="fsRoiEnd" />
+                  <button class="fs-mini soft" type="button" onclick="fsLoadRoiToday()">Set</button>
+                </div>
+              </div>
+              <div class="fs-field">
+                <label>ROI Site Filter</label>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <input class="fs-input" type="text" id="fsRoiSiteFilter" placeholder="Search site..." oninput="fsApplyRoiFilter()" />
+                  <button class="fs-mini soft" type="button" onclick="fsClearRoiSiteFilter()">Clear</button>
+                </div>
+              </div>
+            </div>
+            <div class="fs-grid fs-kpi">
+              <div class="fs-card fs-roi-kpi" id="fsRoiCardModal">
+                <div class="fs-kpi-label">Total Modal</div>
+                <div class="fs-kpi-val" id="fsRoiTotalModal">0</div>
+                <div class="fs-kpi-note">Ad spend total</div>
+              </div>
+              <div class="fs-card fs-roi-kpi" id="fsRoiCardRevenue">
+                <div class="fs-kpi-label">Total Revenue</div>
+                <div class="fs-kpi-val" id="fsRoiTotalRevenue">0</div>
+                <div class="fs-kpi-note">Revenue total</div>
+              </div>
+              <div class="fs-card fs-roi-kpi" id="fsRoiCardOverall">
+                <div class="fs-kpi-label">ROI Overall</div>
+                <div class="fs-kpi-val" id="fsRoiOverall">0%</div>
+                <div class="fs-kpi-note">Overall ROI status</div>
+              </div>
+              <div class="fs-card fs-roi-kpi" id="fsRoiCardSite">
+                <div class="fs-kpi-label">Total Site</div>
+                <div class="fs-kpi-val" id="fsRoiTotalSite">0</div>
+                <div class="fs-kpi-note">Active sites count</div>
+              </div>
+            </div>
+            <div class="fs-table fs-roi-table" style="margin-top:12px; max-height: 420px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Sites</th>
+                    <th class="fs-right">Ad Spend</th>
+                    <th class="fs-right">Revenue</th>
+                    <th class="fs-right">Fix Revenue</th>
+                    <th class="fs-right">ROI</th>
+                  </tr>
+                </thead>
+                <tbody id="fsRoiBody">
+                  <tr><td colspan="5" class="fs-muted" style="text-align:center; padding: 18px;">Loading ROI Today...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="fs-card" style="margin-top:12px;">
+              <div class="fs-card-head">
+                <div>
+                  <div class="fs-title">Grafik ROI Today</div>
+                  <div class="fs-sub">Sorted by highest ROI</div>
+                </div>
+              </div>
+              <div class="fs-chart"><canvas id="fsChartRoi"></canvas></div>
+            </div>
+            <div class="fs-card" style="margin-top:12px;">
+              <div class="fs-card-head">
+                <div>
+                  <div class="fs-title">System Logs</div>
+                  <div class="fs-sub">Realtime stream from app tracker and Google logs</div>
+                </div>
+                <div class="fs-row-right">
+                  <button class="fs-mini soft" type="button" onclick="fsLoadActivityLogs()">Refresh</button>
+                </div>
+              </div>
+              <div id="fsActivityBodyRoi" class="fs-console"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="fsPanelAcc" class="fs-panel">
+          <div class="fs-sync-strip" id="fsSyncInfoAcc">Last Sync: - • By: - • Action: -</div>
+          <div class="fs-card">
+            <div class="fs-card-head">
+              <div>
+                <div class="fs-title">Meta Account Settings</div>
+                <div class="fs-sub">Manage account credentials and run manual connection checks</div>
+              </div>
+              <div class="fs-row-right">
+                <span class="fs-loader" id="fsAccLoader"><span class="fs-spin"></span>Memproses akun...</span>
+                <button class="fs-mini soft" onclick="fsAddAccountRow()">+ Add</button>
+                <button class="fs-mini soft" onclick="fsTestAllAccounts()">Test All Account</button>
+                <button class="fs-mini primary" onclick="fsSaveAccounts()">Save</button>
+              </div>
+            </div>
+
+            <div id="fsAccSummary" class="fs-acc-summary">
+              <div class="left">Memuat ringkasan akun...</div>
+              <div class="vals"></div>
+            </div>
+
+            <div class="fs-table" style="margin-top: 12px; max-height: 520px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:90px;">Active</th>
+                    <th>Account Name</th>
+                    <th style="width:190px;">Ad Account ID</th>
+                    <th style="width:360px;">Access Token</th>
+                    <th style="width:150px;">Status</th>
+                    <th style="width:170px;">Last Check</th>
+                    <th style="width:200px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="fsAccountsBody">
+                  <tr><td colspan="7" class="fs-muted" style="text-align:center; padding: 24px;">Memuat akun...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="fs-card" style="margin-top:12px;">
+            <div class="fs-card-head">
+              <div>
+                <div class="fs-title">System Logs</div>
+                <div class="fs-sub">Realtime stream from app tracker and Google logs</div>
+              </div>
+              <div class="fs-row-right">
+                <button class="fs-mini soft" type="button" onclick="fsLoadActivityLogs()">Refresh</button>
+              </div>
+            </div>
+            <div id="fsActivityBodyAcc" class="fs-console"></div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <div id="fsToastHost" class="fs-toasts"></div>
+    <div id="fsCenterPopup" class="fs-center-pop" role="status" aria-live="polite">
+      <div id="fsCenterPopupTitle" class="fs-center-pop-title">Sync completed</div>
+      <div id="fsCenterPopupMsg" class="fs-center-pop-msg"></div>
+    </div>
+    <div id="fsConfirm" class="fs-confirm" role="dialog" aria-modal="true" aria-labelledby="fsConfirmTitle">
+      <div class="fs-confirm-card">
+        <div id="fsConfirmTitle" class="fs-confirm-title">Konfirmasi Aksi</div>
+        <div id="fsConfirmMsg" class="fs-confirm-msg"></div>
+        <div class="fs-confirm-actions">
+          <button class="fs-mini soft" id="fsConfirmCancel" type="button">Batal</button>
+          <button class="fs-mini danger" id="fsConfirmOk" type="button">Ya, Lanjutkan</button>
+        </div>
+      </div>
+    </div>
+    <div id="fsCampDetail" class="fs-detail" role="dialog" aria-modal="true" aria-labelledby="fsCampDetailTitle">
+      <div class="fs-detail-card">
+        <div class="fs-card-head">
+          <div>
+            <div id="fsCampDetailTitle" class="fs-title">Detail Campaign</div>
+            <div id="fsCampDetailSub" class="fs-sub">Memuat detail campaign...</div>
+          </div>
+          <div class="fs-row-right">
+            <button class="fs-mini brand" type="button" onclick="fsExportCurrentCampaignMetadata()">Export ke Sheet</button>
+            <button class="fs-mini soft" type="button" onclick="fsCloseCampaignDetail()">Tutup</button>
+          </div>
+        </div>
+        <div class="fs-detail-head">
+          <div>
+            <div class="fs-sub">Ringkasan data campaign untuk proses audit dan update konten iklan.</div>
+            <div class="fs-stat-row">
+              <span class="fs-stat-chip" id="fsDetStatAds">Ads: 0</span>
+              <span class="fs-stat-chip" id="fsDetStatAdsets">Adsets: 0</span>
+              <span class="fs-stat-chip" id="fsDetStatMedia">Media: 0</span>
+            </div>
+          </div>
+        </div>
+        <div class="fs-detail-layout">
+          <div class="fs-pane">
+            <div class="fs-pane-title">Targeting Snapshot</div>
+            <div class="fs-detail-grid" style="grid-template-columns:1fr;">
+              <div class="fs-detail-block"><div class="fs-detail-label">Negara Target</div><div class="fs-detail-value" id="fsDetailCountries">-</div></div>
+              <div class="fs-detail-block"><div class="fs-detail-label">Interest</div><div class="fs-detail-value" id="fsDetailInterests">-</div></div>
+              <div class="fs-detail-block"><div class="fs-detail-label">Device Target</div><div class="fs-detail-value" id="fsDetailDevices">-</div></div>
+              <div class="fs-detail-block"><div class="fs-detail-label">Placement</div><div class="fs-detail-value" id="fsDetailPlacements">-</div></div>
+            </div>
+          </div>
+          <div class="fs-pane">
+            <div class="fs-pane-title">Struktur Adset</div>
+            <div class="fs-table" style="max-height: 280px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Adset</th>
+                    <th style="width:120px;">Status</th>
+                    <th style="width:140px;">Budget</th>
+                    <th style="width:160px;">Optimization</th>
+                    <th style="width:140px;">Billing</th>
+                  </tr>
+                </thead>
+                <tbody id="fsDetailAdsetsBody">
+                  <tr><td colspan="5" class="fs-muted" style="text-align:center; padding:16px;">Memuat adset...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="fs-pane" style="margin-top:12px;">
+          <div class="fs-pane-title">Materi Iklan</div>
+          <div class="fs-meta-cards" id="fsDetailAdsBody">
+            <div class="fs-muted" style="text-align:center; padding:16px;">Memuat metadata iklan...</div>
+          </div>
+        </div>
+        <div class="fs-card" style="margin-top:12px;">
+          <div class="fs-card-head">
+            <div>
+              <div class="fs-title">Edit Metadata Iklan</div>
+              <div class="fs-sub">Pilih iklan dari tabel, ubah data, lalu simpan (create creative baru + swap ke ad)</div>
+            </div>
+            <div class="fs-row-right">
+              <span class="fs-loader" id="fsEditAdLoader"><span class="fs-spin"></span>Menyimpan perubahan...</span>
+            </div>
+          </div>
+          <div class="fs-field" style="margin-bottom:10px;">
+            <label>Media Gambar</label>
+            <div id="fsEditMediaGrid" class="fs-media-grid">
+              <div class="fs-muted">Belum ada ad dipilih</div>
+            </div>
+          </div>
+          <div class="fs-form" style="grid-template-columns:repeat(2,minmax(0,1fr));">
+            <div class="fs-field">
+              <label>Ad Terpilih</label>
+              <input class="fs-input" id="fsEditAdId" placeholder="Klik tombol Edit pada tabel" readonly />
+            </div>
+            <div class="fs-field">
+              <label>Title (5 varian)</label>
+              <div class="fs-list5">
+                <input class="fs-input" id="fsEditTitle1" />
+                <input class="fs-input" id="fsEditTitle2" />
+                <input class="fs-input" id="fsEditTitle3" />
+                <input class="fs-input" id="fsEditTitle4" />
+                <input class="fs-input" id="fsEditTitle5" />
+              </div>
+            </div>
+            <div class="fs-field">
+              <label>Headline (5 varian)</label>
+              <div class="fs-list5">
+                <input class="fs-input" id="fsEditHeadline1" />
+                <input class="fs-input" id="fsEditHeadline2" />
+                <input class="fs-input" id="fsEditHeadline3" />
+                <input class="fs-input" id="fsEditHeadline4" />
+                <input class="fs-input" id="fsEditHeadline5" />
+              </div>
+            </div>
+            <div class="fs-field">
+              <label>Description (5 varian)</label>
+              <div class="fs-list5">
+                <input class="fs-input" id="fsEditDescription1" />
+                <input class="fs-input" id="fsEditDescription2" />
+                <input class="fs-input" id="fsEditDescription3" />
+                <input class="fs-input" id="fsEditDescription4" />
+                <input class="fs-input" id="fsEditDescription5" />
+              </div>
+            </div>
+            <div class="fs-field">
+              <label>Link URL</label>
+              <input class="fs-input" id="fsEditLinkUrl" />
+            </div>
+            <div class="fs-field">
+              <label>Parameter (URL Tags)</label>
+              <input class="fs-input" id="fsEditParameter" placeholder="utm_source=meta&utm_campaign=..." />
+            </div>
+            <div class="fs-field">
+              <label>Call To Action</label>
+              <input class="fs-input" id="fsEditCTA" placeholder="SHOP_NOW" />
+            </div>
+          </div>
+          <div class="fs-row" style="margin-top:12px;">
+            <div class="fs-sub" id="fsEditAdName">Belum ada ad dipilih</div>
+            <button class="fs-mini primary" type="button" onclick="fsSaveAdMetadata()">Simpan Perubahan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="hero">
+      <div class="hero-content">
+        <h1 id="heroTitle"><?= APP_NAME ?></h1>
+        <p>Dashboard monitoring kinerja iklan Meta Ads secara real-time dengan status koneksi otomatis.</p>
+        <div class="version-badge">Versi HTML: <?= APP_VERSION ?></div>
+        <div id="connectionStatus"></div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <span class="label">Total Spend</span>
+        <div class="value" id="sumSpend">0</div>
+        <div class="note">Akumulasi data terfilter</div>
+      </div>
+      <div class="kpi">
+        <span class="label">Total Budget</span>
+        <div class="value" id="sumBudget">0</div>
+        <div class="note">Budget campaign terbaca</div>
+      </div>
+      <div class="kpi">
+        <span class="label">Total Click</span>
+        <div class="value" id="sumClick">0</div>
+        <div class="note">Click dari data hasil filter</div>
+      </div>
+      <div class="kpi">
+        <span class="label">Avg CPR</span>
+        <div class="value" id="sumCpr">0</div>
+        <div class="note">Spend ÷ Click</div>
+      </div>
+    </div>
+
+    <!-- Controls Section: Filter & Account Settings -->
+    <div class="section-grid">
+      <div class="card">
+        <div class="card-title">
+          <div>
+            <h3>Filter Dashboard</h3>
+            <div class="sub">Filter data berdasarkan tanggal, site, dan akun</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Start Date</label>
+            <input type="date" id="filterStartDate">
+          </div>
+          <div class="field">
+            <label>End Date</label>
+            <input type="date" id="filterEndDate">
+          </div>
+          <div class="field">
+            <label>Site</label>
+            <select id="filterSite">
+              <option value="">Semua Site</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Account</label>
+            <select id="filterAccount">
+              <option value="">Semua Account</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn-primary" onclick="loadDashboard()">Apply Filter</button>
+          <button class="btn-soft" onclick="resetFilter()">Reset</button>
+          <button class="btn-success" onclick="runSync()">Sync Data</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div>
+            <h3>Pengaturan Akun Meta</h3>
+            <div class="sub">Kelola akun Meta Ads Anda • <span id="accountCount">0</span> akun tersimpan</div>
+          </div>
+          <div class="actions" style="margin-top:0">
+            <button class="btn-soft" onclick="addAccountRow()">+ Tambah</button>
+            <button class="btn-primary" onclick="saveAccounts()">Simpan</button>
+          </div>
+        </div>
+
+        <div id="triggerInfo" class="trigger-note">Auto check 1 jam: mengecek...</div>
+        <div id="accountsLoader" class="loader" style="margin-top:12px;">Memproses akun...</div>
+
+        <div class="table-shell" style="max-height:360px;">
+          <table class="accounts-table">
+            <thead>
+                <th style="width:90px;">Active</th>
+                <th>Account Name</th>
+                <th style="width:180px;">Ad Account ID</th>
+                <th style="width:240px;">Access Token</th>
+                <th style="width:140px;">Status</th>
+                <th style="width:160px;">Last Check</th>
+                <th style="width:200px;">Action</th>
+                <th style="width:200px;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="accountsTbody">
+                <td colspan="7" style="text-align:center;color:#6b7280;padding:24px;">Memuat akun...</td>
+                <td colspan="6" style="text-align:center;color:#6b7280;padding:24px;">Memuat akun...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    <!-- Charts Section -->
+    <div class="section-grid">
+      <div class="card">
+        <div class="card-title">
+          <div>
+            <h3>Spend per Tanggal</h3>
+            <div class="sub">Tren pengeluaran harian</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chartDate"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <div>
+            <h3>Top Site by Spend</h3>
+            <div class="sub">15 Site dengan pengeluaran terbesar</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chartSite"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Result Table -->
+    <div class="card full-width">
+      <div class="toolbar">
+        <div>
+          <h3 style="margin:0">Data Result</h3>
+          <div class="sub">Rincian data kinerja kampanye</div>
+        </div>
+        <div id="loader" class="loader">Memproses data...</div>
+      </div>
+
+      <div class="table-shell">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th style="min-width:100px;">Date</th>
+              <th style="min-width:150px;">Account Name</th>
+              <th style="min-width:200px;">Campaign Name</th>
+              <th style="min-width:120px;">Site Name</th>
+              <th style="min-width:120px; text-align:right;">Total Budget</th>
+              <th style="min-width:120px; text-align:right;">Total Spend</th>
+              <th style="min-width:100px; text-align:right;">CPR</th>
+              <th style="min-width:100px; text-align:right;">Total Click</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="8" style="text-align:center;color:#6b7a90;padding:40px;">Belum ada data tersedia</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/plain" id="legacyScript">
+    let APP_BOOT = null;
+    let chartDate = null;
+    let chartSite = null;
+
+    const IS_LOCAL_PREVIEW = (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+
+    if (IS_LOCAL_PREVIEW && !(window.google && window.google.script && window.google.script.run)) {
+      const mockAccounts = [
+        {
+          active: true,
+          accountName: 'Wike Tri Anggraini',
+          adAccountId: 'act_8492289666974',
+          accessToken: 'EAAB...LOCAL',
+          tokenPreview: 'EAAB...LOCAL',
+          lastTestStatus: 'CONNECTED',
+          lastTestAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
+          accountStatusText: 'Connected • account_status: 1',
+          notes: ''
+        },
+        {
+          active: true,
+          accountName: 'Sample Account 2',
+          adAccountId: 'act_1234567890',
+          accessToken: 'EAAB...LOCAL2',
+          tokenPreview: 'EAAB...LOCAL2',
+          lastTestStatus: 'FAILED',
+          lastTestAt: new Date(Date.now() - 3600 * 1000).toISOString().slice(0, 19).replace('T', ' '),
+          accountStatusText: 'Invalid OAuth access token.',
+          notes: ''
+        }
+      ];
+
+      const mockRows = [
+        {
+          date: '2026-03-16',
+          accountName: 'Wike Tri Anggraini',
+          campaignName: 'cinder.cipicipichips.ADX_5Negara',
+          siteName: 'cinder.cipicipichips',
+          totalBudget: 1000000,
+          totalSpend: 250000,
+          cpr: 5000,
+          totalClick: 50
+        },
+        {
+          date: '2026-03-15',
+          accountName: 'Wike Tri Anggraini',
+          campaignName: 'cinder.cipicipichips.ADX_5Negara',
+          siteName: 'cinder.cipicipichips',
+          totalBudget: 1000000,
+          totalSpend: 300000,
+          cpr: 6000,
+          totalClick: 50
+        }
+      ];
+
+      const mockBootstrap = {
+        success: true,
+        appName: 'Meta Ads Dashboard (Local Preview)',
+        appVersion: 'LOCAL',
+        today: new Date().toISOString().slice(0, 10),
+        defaultStart: new Date(Date.now() - 7 * 86400 * 1000).toISOString().slice(0, 10),
+        defaultEnd: new Date().toISOString().slice(0, 10),
+        accounts: mockAccounts,
+        filters: { sites: ['cinder.cipicipichips'], accounts: ['Wike Tri Anggraini', 'Sample Account 2'] },
+        triggerInstalled: true
+      };
+
+      const mockDashboard = {
+        success: true,
+        rows: mockRows,
+        summary: {
+          totalSpend: mockRows.reduce((n, r) => n + (r.totalSpend || 0), 0),
+          totalBudget: mockRows.reduce((n, r) => n + (r.totalBudget || 0), 0),
+          totalClicks: mockRows.reduce((n, r) => n + (r.totalClick || 0), 0),
+          avgCpr: 0,
+          countRows: mockRows.length
+        },
+        charts: {
+          byDate: [
+            { date: '2026-03-15', spend: 300000, clicks: 50 },
+            { date: '2026-03-16', spend: 250000, clicks: 50 }
+          ],
+          bySite: [
+            { site: 'cinder.cipicipichips', spend: 550000, clicks: 100 }
+          ]
+        }
+      };
+
+      mockDashboard.summary.avgCpr = mockDashboard.summary.totalClicks > 0
+        ? mockDashboard.summary.totalSpend / mockDashboard.summary.totalClicks
+        : 0;
+
+      window.google = {
+        script: {
+          run: (function () {
+            const chain = {
+              _success: null,
+              _failure: null,
+              withSuccessHandler(fn) { this._success = fn; return this; },
+              withFailureHandler(fn) { this._failure = fn; return this; },
+              getAppBootstrap() { setTimeout(() => this._success && this._success(mockBootstrap), 50); return this; },
+              getDashboardData() { setTimeout(() => this._success && this._success(mockDashboard), 80); return this; },
+              saveAccounts() { setTimeout(() => this._success && this._success({ success: true, message: 'Local: akun tersimpan (mock)' }), 50); return this; },
+              testAccountConnection() { setTimeout(() => this._success && this._success({ success: true, message: 'Local: test koneksi (mock)' }), 50); return this; },
+              installHourlyConnectionTrigger() { setTimeout(() => this._success && this._success({ success: true }), 50); return this; },
+              syncMetaData() { setTimeout(() => this._success && this._success({ success: true, totals: { fetched: 2, inserted: 2, updated: 0 }, filters: mockBootstrap.filters }), 120); return this; }
+            };
+            return chain;
+          })()
+        }
+      };
+
+      const heroTitle = document.getElementById('heroTitle');
+      if (heroTitle) heroTitle.textContent = mockBootstrap.appName;
+    }
+
+    function showLoader(show){
+      ['loader', 'accountsLoader'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if(show) el.classList.add('show');
+        else el.classList.remove('show');
+      });
+    }
+
+    function formatNumber(num){
+      return Number(num || 0).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+    }
+
+    function escapeHtml(str){
+      return String(str || '')
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+    }
+
+    function statusHtml(status){
+      const s = String(status || '').toUpperCase();
+      if(s === 'CONNECTED') return `<span class="status-indicator online">Connected</span>`;
+      if(s === 'FAILED') return `<span class="status-indicator offline">Disconnected</span>`;
+      return `<span class="status-indicator checking">Checking</span>`;
+    }
+
+    // Account Management (manual input, save once)
+    let currentAccounts = [];
+
+    function renderAccounts(accounts){
+      currentAccounts = accounts || [];
+      document.getElementById('accountCount').textContent = currentAccounts.length;
+
+      const tbody = document.getElementById('accountsTbody');
+      if (!tbody) return;
+
+      if(!currentAccounts.length){
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#6b7280;padding:24px;">Belum ada akun tersimpan. Klik tombol "+ Tambah" lalu isi data, kemudian klik "Simpan".</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = currentAccounts.map(acc => accountRowHtml_(acc)).join('');
+    }
+
+    function accountRowHtml_(acc){
+      const activeVal = acc && acc.active ? 'TRUE' : 'FALSE';
+      const nameVal = escapeHtml(acc?.accountName || '');
+      const idVal = escapeHtml(acc?.adAccountId || '');
+      const tokenVal = escapeHtml(acc?.accessToken || '');
+      const lastCheck = escapeHtml(acc?.lastTestAt || '-');
+      return `
+        <tr class="acc-row">
+          <td>
+            <select class="acc-select acc-active">
+              <option value="TRUE" ${activeVal === 'TRUE' ? 'selected' : ''}>TRUE</option>
+              <option value="FALSE" ${activeVal === 'FALSE' ? 'selected' : ''}>FALSE</option>
+            </select>
+          </td>
+          <td><input class="acc-input acc-name" value="${nameVal}" placeholder="Account Name" /></td>
+          <td><input class="acc-input acc-id" value="${idVal}" placeholder="act_123..." /></td>
+          <td><input class="acc-input acc-token" type="password" value="${tokenVal}" placeholder="EAAB..." /></td>
+          <td>${statusHtml(acc?.lastTestStatus)}</td>
+          <td style="color:var(--text-secondary); font-size:12px;">${lastCheck}</td>
+          <td>
+            <div class="table-actions">
+              <button class="ac-btn ac-btn-test" onclick="testAccountRow(this)">Test</button>
+              <button class="ac-btn ac-btn-del" onclick="removeAccountRow(this)">Hapus</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+
+    function addAccountRow(){
+      const tbody = document.getElementById('accountsTbody');
+      if (!tbody) return;
+
+      if (tbody.querySelector('td[colspan]')) tbody.innerHTML = '';
+
+      tbody.insertAdjacentHTML('beforeend', accountRowHtml_({ active: true }));
+      document.getElementById('accountCount').textContent = tbody.querySelectorAll('tr.acc-row').length;
+    }
+
+    function removeAccountRow(btn){
+      const tr = btn.closest('tr');
+      if (tr) tr.remove();
+      const tbody = document.getElementById('accountsTbody');
+      const count = tbody ? tbody.querySelectorAll('tr.acc-row').length : 0;
+      document.getElementById('accountCount').textContent = count;
+      if (tbody && count === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#6b7280;padding:24px;">Belum ada akun tersimpan. Klik tombol "+ Tambah" lalu isi data, kemudian klik "Simpan".</td></tr>`;
+      }
+    }
+
+    function collectAccountsFromTable_(){
+      const tbody = document.getElementById('accountsTbody');
+      if (!tbody) return [];
+      return Array.from(tbody.querySelectorAll('tr.acc-row')).map(tr => {
+        return {
+          active: tr.querySelector('.acc-active').value === 'TRUE',
+          accountName: tr.querySelector('.acc-name').value.trim(),
+          adAccountId: tr.querySelector('.acc-id').value.trim(),
+          accessToken: tr.querySelector('.acc-token').value.trim()
+        };
+      }).filter(a => a.accountName || a.adAccountId || a.accessToken);
+    }
+
+    function saveAccounts(){
+      const accountsToSave = collectAccountsFromTable_();
+      showLoader(true);
+      google.script.run
+        .withSuccessHandler(res => {
+          showLoader(false);
+          bootstrap({ skipDashboard: true });
+        })
+        .withFailureHandler(err => {
+          showLoader(false);
+          alert('Gagal simpan akun: ' + err.message);
+        })
+        .saveAccounts(accountsToSave);
+    }
+
+    function testAccountRow(btn){
+      const tr = btn.closest('tr');
+      if (!tr) return;
+      const payload = {
+        accountName: tr.querySelector('.acc-name').value.trim(),
+        adAccountId: tr.querySelector('.acc-id').value.trim(),
+        accessToken: tr.querySelector('.acc-token').value.trim()
+      };
+
+      showLoader(true);
+      google.script.run
+        .withSuccessHandler(res => {
+          showLoader(false);
+          alert(res.message || 'Koneksi berhasil!');
+          bootstrap({ skipDashboard: true });
+        })
+        .withFailureHandler(err => {
+          showLoader(false);
+          alert('Test koneksi gagal: ' + err.message);
+        })
+        .testAccountConnection(payload);
+    }
+
+    function timeSince(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      let interval = seconds / 31536000;
+      if (interval > 1) return Math.floor(interval) + " tahun lalu";
+      interval = seconds / 2592000;
+      if (interval > 1) return Math.floor(interval) + " bulan lalu";
+      interval = seconds / 86400;
+      if (interval > 1) return Math.floor(interval) + " hari lalu";
+      interval = seconds / 3600;
+      if (interval > 1) return Math.floor(interval) + " jam lalu";
+      interval = seconds / 60;
+      if (interval > 1) return Math.floor(interval) + " menit lalu";
+      return Math.floor(seconds) + " detik lalu";
+    }
+
+
+
+    function fillFilters(filters){
+      const site = document.getElementById('filterSite');
+      const account = document.getElementById('filterAccount');
+
+      site.innerHTML = `<option value="">Semua Site</option>`;
+      account.innerHTML = `<option value="">Semua Account</option>`;
+
+      (filters?.sites || []).forEach(v => {
+        site.innerHTML += `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`;
+      });
+
+      (filters?.accounts || []).forEach(v => {
+        account.innerHTML += `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`;
+      });
+    }
+
+    function resetFilter(){
+      document.getElementById('filterStartDate').value = APP_BOOT?.defaultStart || '';
+      document.getElementById('filterEndDate').value = APP_BOOT?.defaultEnd || '';
+      document.getElementById('filterSite').value = '';
+      document.getElementById('filterAccount').value = '';
+      loadDashboard();
+    }
+
+    function updateTriggerInfo(installed){
+      const el = document.getElementById('triggerInfo');
+      const now = new Date();
+      const nextCheck = new Date(now.getTime() + 60 * 60 * 1000); // 1 jam dari sekarang
+      
+      el.innerHTML = installed
+        ? `<div style="display:flex; justify-content:space-between; align-items:center;">
+             <span>✅ Auto check 1 jam: AKTIF</span>
+             <span style="font-size:11px; opacity:0.8;">Next check: ${nextCheck.toLocaleTimeString('id-ID')}</span>
+           </div>`
+        : `<div style="display:flex; justify-content:space-between; align-items:center;">
+             <span>⚠️ Auto check 1 jam: BELUM AKTIF</span>
+             <button class="btn-soft" style="font-size:11px; padding:6px 10px;" onclick="installTrigger()">Aktifkan</button>
+           </div>`;
+    }
+
+    function renderConnectionStatus(accounts){
+      const container = document.getElementById('connectionStatus');
+      if(!accounts || !accounts.length){
+        container.innerHTML = '';
+        return;
+      }
+
+      const activeAccounts = accounts.filter(acc => acc.active);
+      if(!activeAccounts.length) {
+        container.innerHTML = '';
+        return;
+      }
+
+      const connectedCount = activeAccounts.filter(a => String(a.lastTestStatus || '').toUpperCase() === 'CONNECTED').length;
+      const failedCount = activeAccounts.filter(a => String(a.lastTestStatus || '').toUpperCase() === 'FAILED').length;
+      const checkingCount = activeAccounts.length - connectedCount - failedCount;
+
+      container.innerHTML = `
+        <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+          <span class="status-indicator online">${connectedCount} Connected</span>
+          <span class="status-indicator offline">${failedCount} Disconnected</span>
+          <span class="status-indicator checking">${checkingCount} Checking</span>
+        </div>
+      `;
+    }
+
+    function installTrigger(){
+      showLoader(true);
+      google.script.run
+        .withSuccessHandler(res => {
+          showLoader(false);
+          alert('Auto check connection berhasil diaktifkan!');
+          bootstrap({ skipDashboard: true });
+        })
+        .withFailureHandler(err => {
+          showLoader(false);
+          alert('Gagal mengaktifkan auto check: ' + err.message);
+        })
+        .installHourlyConnectionTrigger();
+    }
+
+    function bootstrap(opts){
+      const options = opts || {};
+      showLoader(true);
+      const accountsTbody = document.getElementById('accountsTbody');
+      if (accountsTbody) {
+        accountsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#6b7280;padding:24px;">Memuat akun...</td></tr>';
+      }
+      google.script.run
+        .withSuccessHandler(res => {
+          showLoader(false);
+          APP_BOOT = res;
+          document.getElementById('filterStartDate').value = res.defaultStart || '';
+          document.getElementById('filterEndDate').value = res.defaultEnd || '';
+          fillFilters(res.filters);
+          renderAccounts(res.accounts);
+          renderConnectionStatus(res.accounts);
+          updateTriggerInfo(res.triggerInstalled);
+          if (!options.skipDashboard) loadDashboard();
+        })
+        .withFailureHandler(err => {
+          showLoader(false);
+          if (accountsTbody) {
+            accountsTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#ef4444;padding:24px;">Gagal memuat akun: ' + escapeHtml(err.message) + '</td></tr>';
+          }
+          alert('Bootstrap gagal: ' + err.message);
+        })
+        .getAppBootstrap();
+    }
+
+    function runSync(){
+      const payload = {
+        startDate: document.getElementById('filterStartDate').value,
+        endDate: document.getElementById('filterEndDate').value
+      };
+
+      showLoader(true);
+      google.script.run
+        .withSuccessHandler(res => {
+          showLoader(false);
+          alert(`Sync selesai\nFetched: ${res.totals.fetched}\nInserted: ${res.totals.inserted}\nUpdated: ${res.totals.updated}`);
+          fillFilters(res.filters);
+          loadDashboard();
+        })
+        .withFailureHandler(err => {
+          showLoader(false);
+          alert('Sync gagal: ' + err.message);
+        })
+        .syncMetaData(payload);
+    }
+
+    function loadDashboard(){
+      const filters = {
+        startDate: document.getElementById('filterStartDate').value,
+        endDate: document.getElementById('filterEndDate').value,
+        site: document.getElementById('filterSite').value,
+        accountName: document.getElementById('filterAccount').value
+      };
+
+      showLoader(true);
+      // Tampilkan loading di tabel
+      document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:#6b7280;">Memuat data...</td></tr>';
+      
+      google.script.run
+        .withSuccessHandler(res => {
+          showLoader(false);
+          renderSummary(res.summary);
+          renderTable(res.rows);
+          renderCharts(res.charts);
+        })
+        .withFailureHandler(err => {
+          showLoader(false);
+          document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:#ef4444;">Gagal memuat data: ' + err.message + '</td></tr>';
+          alert('Gagal load dashboard: ' + err.message);
+        })
+        .getDashboardData(filters);
+    }
+
+    function renderSummary(summary){
+      document.getElementById('sumSpend').textContent = formatNumber(summary.totalSpend);
+      document.getElementById('sumBudget').textContent = formatNumber(summary.totalBudget);
+      document.getElementById('sumClick').textContent = formatNumber(summary.totalClicks);
+      document.getElementById('sumCpr').textContent = formatNumber(summary.avgCpr);
+    }
+
+    function renderTable(rows){
+      const tbody = document.getElementById('tableBody');
+      if(!rows || !rows.length){
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#6b7280;padding:40px;">Tidak ada data untuk filter yang dipilih</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = rows.map((r, index) => `
+        <tr style="${index % 2 === 0 ? 'background:#fafbfc;' : 'background:#fff;'}">
+          <td style="font-weight:500;">${escapeHtml(r.date)}</td>
+          <td>${escapeHtml(r.accountName)}</td>
+          <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(r.campaignName)}">${escapeHtml(r.campaignName)}</td>
+          <td><span style="background:${r.siteName ? '#e0e7ff' : '#f3f4f6'}; color:${r.siteName ? '#4338ca' : '#6b7280'}; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:500;">${escapeHtml(r.siteName || 'N/A')}</span></td>
+          <td style="text-align:right; font-weight:500; color:#059669;">Rp ${formatNumber(r.totalBudget)}</td>
+          <td style="text-align:right; font-weight:500; color:#dc2626;">Rp ${formatNumber(r.totalSpend)}</td>
+          <td style="text-align:right;">Rp ${formatNumber(r.cpr)}</td>
+          <td style="text-align:right;">${formatNumber(r.totalClick)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderCharts(charts){
+      renderDateChart(charts?.byDate || []);
+      renderSiteChart(charts?.bySite || []);
+    }
+
+    function renderDateChart(rows){
+      const ctx = document.getElementById('chartDate').getContext('2d');
+      if(chartDate) chartDate.destroy();
+      chartDate = new Chart(ctx,{
+        type:'line',
+        data:{
+          labels:rows.map(r=>r.date),
+          datasets:[{
+            label:'Spend',
+            data:rows.map(r=>Number(r.spend||0)),
+            borderWidth:2,
+            tension:.25,
+            fill:false
+          }]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          animation:{
+            duration:1000,
+            easing:'easeInOutQuart'
+          },
+          plugins:{
+            legend:{
+              display:false
+            }
+          }
+        }
+      });
+    }
+
+    function renderSiteChart(rows){
+      const ctx = document.getElementById('chartSite').getContext('2d');
+      if(chartSite) chartSite.destroy();
+      chartSite = new Chart(ctx,{
+        type:'bar',
+        data:{
+          labels:rows.map(r=>r.site),
+          datasets:[{
+            label:'Spend',
+            data:rows.map(r=>Number(r.spend||0)),
+            borderWidth:1
+          }]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          animation:{
+            duration:1000,
+            easing:'easeInOutQuart'
+          },
+          plugins:{
+            legend:{
+              display:false
+            }
+          }
+        }
+      });
+    }
+
+    // Legacy UI bootstrap disabled (freshShell is the only active UI)
+    // bootstrap();
+  </script>
+
+  <script>
+    (function(){
+      const el = (id) => document.getElementById(id);
+      const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+      const hasGAS = !!(window.google && window.google.script && window.google.script.run);
+
+      if (isLocal && !hasGAS) {
+        const mockAccounts = [
+          {
+            active: true,
+            accountName: 'Wike Tri Anggraini',
+            adAccountId: 'act_8492289666974',
+            accessToken: 'EAAB...LOCAL',
+            tokenPreview: 'EAAB...LOCAL',
+            lastTestStatus: 'CONNECTED',
+            lastTestAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            accountStatusText: 'Connected • account_status: 1',
+            notes: ''
+          }
+        ];
+
+        const mockBootstrap = {
+          success: true,
+          appName: 'Meta Ads Dashboard (Local Preview)',
+          appVersion: 'LOCAL',
+          today: new Date().toISOString().slice(0, 10),
+          currentUserEmail: 'operator.local@trendhorizone.id',
+          defaultStart: new Date(Date.now() - 7 * 86400 * 1000).toISOString().slice(0, 10),
+          defaultEnd: new Date().toISOString().slice(0, 10),
+          accounts: mockAccounts,
+          filters: { sites: ['cinder.cipicipichips'], accounts: ['Wike Tri Anggraini'] },
+          triggerInstalled: true
+        };
+
+        const mockRows = [
+          {
+            date: '2026-03-16',
+            accountName: 'Wike Tri Anggraini',
+            campaignName: 'cinder.cipicipichips.ADX_5Negara',
+            siteName: 'cinder.cipicipichips',
+            totalBudget: 1000000,
+            totalSpend: 250000,
+            cpr: 5000,
+            totalClick: 50
+          }
+        ];
+
+        const mockDashboard = {
+          success: true,
+          rows: mockRows,
+          summary: {
+            totalSpend: 250000,
+            totalBudget: 1000000,
+            totalClicks: 50,
+            avgCpr: 5000,
+            countRows: 1
+          },
+          charts: {
+            byDate: [{ date: '2026-03-16', spend: 250000, clicks: 50 }],
+            bySite: [{ site: 'cinder.cipicipichips', spend: 250000, clicks: 50 }]
+          },
+          roiToday: {
+            summary: { totalModal: 1250000, totalRevenue: 2100000, roiOverall: 0.68 },
+            rows: [{ site: 'cinder.cipicipichips', modalIklan: 500000, revenue: 830000, fixRevenue: 790000, roi: 0.58 }],
+            range: { startDate: '2026-03-16', endDate: '2026-03-16' },
+            sheetName: 'ROI TODAY'
+          }
+        };
+
+        window.google = {
+          script: {
+            run: (function () {
+              const chain = {
+                _success: null,
+                _failure: null,
+                withSuccessHandler(fn) { this._success = fn; return this; },
+                withFailureHandler(fn) { this._failure = fn; return this; },
+                getAppBootstrap() { setTimeout(() => this._success && this._success(mockBootstrap), 50); return this; },
+                getDashboardData() { setTimeout(() => this._success && this._success(mockDashboard), 80); return this; },
+                saveAccounts() { setTimeout(() => this._success && this._success({ success: true, message: 'Local: akun tersimpan (mock)' }), 60); return this; },
+                testAccountConnection() { setTimeout(() => this._success && this._success({ success: true, message: 'Local: test koneksi (mock)' }), 60); return this; },
+                testAllAccountsConnection() { setTimeout(() => this._success && this._success({ success: true, message: 'Local: test all account selesai', total: 1, connected: 1, failed: 0, details: [{ accountName: 'Wike Tri Anggraini', adAccountId: 'act_8492289666974', success: true }] }), 90); return this; },
+                runUpdateGoogleEarning() { setTimeout(() => this._success && this._success({ success: true, message: 'Local: Update Google Earning berjalan' }), 110); return this; },
+                runUpdateAllFast() { const today = new Date().toISOString().slice(0,10); setTimeout(() => this._success && this._success({ success: true, message: `Local: update all cepat selesai (${today})`, today, totals: { fetched: 1, inserted: 0, updated: 1 } }), 140); return this; },
+                syncMetaData() { setTimeout(() => this._success && this._success({ success: true, totals: { fetched: 1, inserted: 1, updated: 0 }, filters: mockBootstrap.filters }), 120); return this; },
+                getRoiTodayData(payload) { const p = payload || {}; setTimeout(() => this._success && this._success({ success: true, roiToday: { summary: { totalModal: 1250000, totalRevenue: 2100000, roiOverall: 0.68 }, rows: [{ site: 'cinder.cipicipichips', modalIklan: 500000, revenue: 830000, fixRevenue: 790000, roi: 0.58 }], range: { startDate: p.startDate || '2026-03-16', endDate: p.endDate || '2026-03-16' }, sheetName: 'ROI TODAY' } }), 90); return this; },
+                getLatestSyncInfo() { setTimeout(() => this._success && this._success({ success: true, by: 'operator.local@trendhorizone.id', at: new Date().toISOString().slice(0,19).replace('T',' '), action: 'UPDATE_ALL_FAST', message: 'Update all completed' }), 60); return this; },
+                getGoogleActivityLogs() { setTimeout(() => this._success && this._success({ success: true, logs: [{ timestamp: new Date().toISOString().slice(0,19).replace('T',' '), source: 'SYSTEM', step: 'complete', status: 'SUCCESS', message: 'Google earning update completed' }] }), 70); return this; },
+                getActivityLogs() { setTimeout(() => this._success && this._success({ success: true, logs: [{ timestamp: new Date().toISOString().slice(0,19).replace('T',' '), userEmail: 'operator.local@trendhorizone.id', action: 'SYNC_FINISH', message: 'Sync selesai fetched 1, inserted 1, updated 0' }] }), 80); return this; },
+                getTrackerStream() { setTimeout(() => this._success && this._success({ success: true, events: [{ id: Date.now(), timestamp: new Date().toISOString().slice(0,19).replace('T',' '), level: 'INFO', action: 'MOCK_STREAM', message: 'Tracker stream aktif (local)' }], lastId: Date.now() }), 70); return this; },
+                trackClientEvent() { setTimeout(() => this._success && this._success({ success: true }), 40); return this; },
+                getAccountNotifications() { setTimeout(() => this._success && this._success({ success: true, generatedAt: new Date().toISOString().slice(0,19).replace('T',' '), alerts: [{ accountName: 'Wike Tri Anggraini', adAccountId: 'act_8492289666974', type: 'PAYMENT', severity: 'HIGH', entityName: 'Wike Tri Anggraini', code: 'account_status:2', message: 'Akun butuh pengecekan pembayaran/billing.' }], summary: { totalAccounts: 1, totalAlerts: 1, high: 1, medium: 0 } }), 90); return this; },
+                sendAccountAlertsEmail() { setTimeout(() => this._success && this._success({ success: true, sent: true, to: 'triosptr@trendhorizone.id', totalAlerts: 1, message: 'Email alert berhasil dikirim' }), 90); return this; },
+                trackDashboardLogin() { setTimeout(() => this._success && this._success({ success: true }), 30); return this; },
+                listCampaigns() { setTimeout(() => this._success && this._success({ success: true, campaigns: [{ id: '120000000000001', name: 'Mock Campaign 1', status: 'ACTIVE', objective: 'OUTCOME_SALES', daily_budget: '1000000', lifetime_budget: '' }, { id: '120000000000002', name: 'Mock Campaign 2', status: 'PAUSED', objective: 'OUTCOME_TRAFFIC', daily_budget: '500000', lifetime_budget: '' }] }), 100); return this; },
+                getCampaignTargetingDetail() { setTimeout(() => this._success && this._success({ success: true, campaign: { id: '120000000000001', name: 'Mock Campaign 1', status: 'ACTIVE', objective: 'OUTCOME_SALES' }, summary: { countries: ['ID','SG'], interests: ['Digital Marketing','Online Shopping'], devices: ['mobile','desktop'], placements: ['platform:facebook','facebook:feed','instagram:story'] }, adsets: [{ id: '2381', name: 'Adset Main', status: 'ACTIVE', budgetType: 'DAILY', budgetValue: '1000000', optimizationGoal: 'OFFSITE_CONVERSIONS', billingEvent: 'IMPRESSIONS' }], ads: [{ adId: '12001', adName: 'Ad Creative 1', mediaPreview: 'https://images.unsplash.com/photo-1557821552-17105176677c?w=300', mediaList: ['https://images.unsplash.com/photo-1557821552-17105176677c?w=300','https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=300','https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=300','https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=300'], titleList: ['Promo Maret','Flash Sale','Bonus Member','Diskon Akhir Pekan','Belanja Hemat'], headlineList: ['Diskon Besar','Gratis Ongkir','Beli 2 Gratis 1','Harga Spesial','Cek Promo Hari Ini'], descriptionList: ['Belanja sekarang hemat hingga 50%','Stok terbatas','Promo berlaku nasional','Klaim voucher di checkout','Syarat ketentuan berlaku'], title: 'Promo Maret | Flash Sale', headline: 'Diskon Besar | Gratis Ongkir', description: 'Belanja sekarang hemat hingga 50% | Stok terbatas', linkUrl: 'https://example.com/landing', parameter: 'utm_source=meta&utm_campaign=maret', callToAction: 'SHOP_NOW' }] }), 100); return this; },
+                exportCampaignMetadataToSheet() { setTimeout(() => this._success && this._success({ success: true, message: 'Local: metadata campaign diexport ke sheet', rows: 2, sheetName: 'META_CAMPAIGN_METADATA' }), 140); return this; },
+                updateAdMetadata() { setTimeout(() => this._success && this._success({ success: true, message: 'Local: metadata iklan diperbarui' }), 120); return this; },
+                setCampaignStatus() { setTimeout(() => this._success && this._success({ success: true, campaign: { id: '120000000000001', name: 'Mock Campaign 1', status: 'PAUSED' } }), 100); return this; },
+                updateCampaignBudget() { setTimeout(() => this._success && this._success({ success: true, message: 'Local: budget campaign terupdate', campaign: { id: '120000000000001', name: 'Mock Campaign', daily_budget: '1000000', lifetime_budget: '' } }), 100); return this; }
+              };
+              return chain;
+            })()
+          }
+        };
+      }
+
+      let fsBoot = null;
+      let fsChartDate = null;
+      let fsChartSite = null;
+      let fsChartRoi = null;
+      let fsCurrentDetailCampaignId = '';
+      let fsCurrentAdsMap = {};
+      let fsLiveLogTimer = null;
+      let fsTrackerLogs = [];
+      let fsRoiRowsRaw = [];
+      let fsRoiRowsFiltered = [];
+      let fsGoogleLogSeen = {};
+      let fsCenterPopupTimer = null;
+      let fsTrackerLastId = 0;
+      let fsTrackerPulling = false;
+      const FS_LOCK_PIN = '123123';
+      let fsAppStarted = false;
+
+      function fsEscapeHtml(str){
+        return String(str || '')
+          .replace(/&/g,'&amp;')
+          .replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;')
+          .replace(/'/g,'&#039;');
+      }
+
+      function fsFormatNumber(num){
+        return Number(num || 0).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+      }
+
+      function fsSetLoader(id, show){
+        const n = el(id);
+        if (!n) return;
+        if (show) n.classList.add('is-show');
+        else n.classList.remove('is-show');
+      }
+
+      function fsToast(title, msg){
+        const host = el('fsToastHost');
+        if (!host) return;
+        const t = String(title || '');
+        const m = String(msg || '');
+        const level = /gagal|error|failed/i.test(`${t} ${m}`) ? 'ERROR' : (/warning|warn|peringatan/i.test(`${t} ${m}`) ? 'WARN' : 'INFO');
+        fsTrace('TOAST', `${t} - ${m}`, level);
+        fsMaybePopupSyncDone(t, m, level);
+        const node = document.createElement('div');
+        node.className = 'fs-toast';
+        node.innerHTML = `<div class="fs-toast-title">${fsEscapeHtml(t)}</div><div class="fs-toast-msg">${fsEscapeHtml(m)}</div>`;
+        host.appendChild(node);
+        setTimeout(() => { node.style.opacity = '0'; node.style.transform = 'translateY(6px)'; }, 2600);
+        setTimeout(() => { node.remove(); }, 3200);
+      }
+
+      function fsMaybePopupSyncDone(title, message, level){
+        if (String(level || '').toUpperCase() === 'ERROR') return;
+        const text = `${title} ${message}`;
+        const isDone = /selesai|berhasil|success|completed|done|copied|saved|updated|connected/i.test(text);
+        if (!isDone) return;
+        const popTitle = 'Sync selesai';
+        const popBody = `${title}${message ? ' • ' + message : ''}`;
+        fsPopupNotify(popTitle, popBody);
+      }
+
+      function fsPopupNotify(title, body){
+        const root = el('fsCenterPopup');
+        const t = el('fsCenterPopupTitle');
+        const m = el('fsCenterPopupMsg');
+        if (!root || !t || !m) return;
+        t.textContent = title || 'Sync selesai';
+        m.textContent = body || '';
+        root.classList.add('is-show');
+        if (fsCenterPopupTimer) clearTimeout(fsCenterPopupTimer);
+        fsCenterPopupTimer = setTimeout(() => {
+          root.classList.remove('is-show');
+        }, 2200);
+      }
+
+      function fsStartApp(){
+        if (fsAppStarted) return;
+        fsAppStarted = true;
+        fsInitTheme();
+        fsBindAccountsActions();
+        fsBindDetailModalActions();
+        fsBootstrap();
+      }
+
+      function fsShowLock(){
+        const lock = el('fsLockScreen');
+        const shell = el('freshShell');
+        if (lock) lock.style.display = 'flex';
+        if (shell) shell.style.display = 'none';
+        setTimeout(() => { el('fsLockPin')?.focus(); }, 40);
+      }
+
+      function fsTrackDashboardLogin(success){
+        if (!(window.google && google.script && google.script.run)) return;
+        google.script.run
+          .withSuccessHandler(function(){})
+          .withFailureHandler(function(){})
+          .trackDashboardLogin({
+            mode: 'PIN',
+            success: !!success,
+            userAgent: navigator.userAgent || ''
+          });
+      }
+
+      function fsUnlockApp(){
+        const input = el('fsLockPin');
+        const err = el('fsLockError');
+        const val = String(input?.value || '').trim();
+        if (val !== FS_LOCK_PIN) {
+          fsTrackDashboardLogin(false);
+          if (err) err.textContent = 'PIN salah. Coba lagi.';
+          if (input) {
+            input.value = '';
+            input.focus();
+          }
+          return;
+        }
+        fsTrackDashboardLogin(true);
+        if (err) err.textContent = '';
+        const lock = el('fsLockScreen');
+        const shell = el('freshShell');
+        if (lock) lock.style.display = 'none';
+        if (shell) shell.style.display = 'block';
+        fsStartApp();
+      }
+
+      function fsConfirmDialog(opts){
+        const title = String(opts?.title || 'Konfirmasi Aksi');
+        const message = String(opts?.message || '');
+        const okText = String(opts?.okText || 'Ya, Lanjutkan');
+        const danger = !!opts?.danger;
+
+        const root = el('fsConfirm');
+        const titleNode = el('fsConfirmTitle');
+        const msgNode = el('fsConfirmMsg');
+        const okBtn = el('fsConfirmOk');
+        const cancelBtn = el('fsConfirmCancel');
+        if (!root || !titleNode || !msgNode || !okBtn || !cancelBtn) return Promise.resolve(false);
+
+        titleNode.textContent = title;
+        msgNode.textContent = message;
+        okBtn.textContent = okText;
+        okBtn.className = danger ? 'fs-mini danger' : 'fs-mini primary';
+        cancelBtn.className = 'fs-mini soft';
+
+        root.classList.add('is-show');
+
+        return new Promise(resolve => {
+          let done = false;
+          const finish = (val) => {
+            if (done) return;
+            done = true;
+            root.classList.remove('is-show');
+            okBtn.removeEventListener('click', onOk);
+            cancelBtn.removeEventListener('click', onCancel);
+            root.removeEventListener('click', onBackdrop);
+            document.removeEventListener('keydown', onEsc);
+            resolve(!!val);
+          };
+          const onOk = () => finish(true);
+          const onCancel = () => finish(false);
+          const onBackdrop = (e) => { if (e.target === root) finish(false); };
+          const onEsc = (e) => { if (e.key === 'Escape') finish(false); };
+          okBtn.addEventListener('click', onOk);
+          cancelBtn.addEventListener('click', onCancel);
+          root.addEventListener('click', onBackdrop);
+          document.addEventListener('keydown', onEsc);
+        });
+      }
+
+      function fsSetTab(tab){
+        const dash = el('fsPanelDash');
+        const acc = el('fsPanelAcc');
+        const roi = el('fsPanelRoi');
+        const tDash = el('fsTabDash');
+        const tAcc = el('fsTabAcc');
+        const tRoi = el('fsTabRoi');
+        if (!dash || !acc || !roi || !tDash || !tAcc || !tRoi) return;
+
+        if (tab === 'acc') {
+          dash.classList.remove('is-active');
+          roi.classList.remove('is-active');
+          acc.classList.add('is-active');
+          tDash.classList.remove('is-active');
+          tRoi.classList.remove('is-active');
+          tAcc.classList.add('is-active');
+        } else if (tab === 'roi') {
+          dash.classList.remove('is-active');
+          acc.classList.remove('is-active');
+          roi.classList.add('is-active');
+          tDash.classList.remove('is-active');
+          tAcc.classList.remove('is-active');
+          tRoi.classList.add('is-active');
+          fsLoadRoiToday();
+        } else {
+          acc.classList.remove('is-active');
+          roi.classList.remove('is-active');
+          dash.classList.add('is-active');
+          tAcc.classList.remove('is-active');
+          tRoi.classList.remove('is-active');
+          tDash.classList.add('is-active');
+        }
+      }
+
+      function fsApplyTheme(theme){
+        const shell = el('freshShell');
+        if (!shell) return;
+        shell.setAttribute('data-theme', theme);
+        try { localStorage.setItem('fs_theme', theme); } catch(e) {}
+        const btn = el('fsThemeBtn');
+        if (btn) btn.textContent = theme === 'dark' ? 'Dark' : 'Light';
+        fsRenderCharts(fsLastCharts);
+        fsApplyRoiFilter();
+      }
+
+      function fsInitTheme(){
+        let theme = 'light';
+        try {
+          const saved = localStorage.getItem('fs_theme');
+          if (saved === 'dark' || saved === 'light') theme = saved;
+          else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) theme = 'dark';
+        } catch(e) {}
+        fsApplyTheme(theme);
+      }
+
+      function fsToggleTheme(){
+        const shell = el('freshShell');
+        const cur = shell ? shell.getAttribute('data-theme') : 'light';
+        fsApplyTheme(cur === 'dark' ? 'light' : 'dark');
+      }
+
+      function fsStatusPill(status){
+        const s = String(status || '').toUpperCase();
+        if (s === 'CONNECTED') return '<span class="fs-status connected"><span class="fs-dot success"></span>Connected</span>';
+        if (s === 'FAILED') return '<span class="fs-status disconnected"><span class="fs-dot danger"></span>Disconnected</span>';
+        if (s === 'CHECKING') return '<span class="fs-status checking"><span class="fs-dot warning"></span>Checking</span>';
+        return '<span class="fs-status checking" style="opacity:.9"><span class="fs-dot warning"></span>Not Tested</span>';
+      }
+
+      function fsRenderConnChips(accounts){
+        const host = el('fsConnChips');
+        if (!host) return;
+        const active = (accounts || []).filter(a => a && a.active);
+        const connected = active.filter(a => String(a.lastTestStatus || '').toUpperCase() === 'CONNECTED').length;
+        const failed = active.filter(a => String(a.lastTestStatus || '').toUpperCase() === 'FAILED').length;
+        const checking = Math.max(active.length - connected - failed, 0);
+        host.innerHTML = `
+          <span class="fs-chip success"><span class="fs-dot success"></span>${connected} Connected</span>
+          <span class="fs-chip danger"><span class="fs-dot danger"></span>${failed} Disconnected</span>
+          <span class="fs-chip warning"><span class="fs-dot warning"></span>${checking} Not Tested</span>
+        `;
+      }
+
+      function fsNowLocal_(){
+        const d = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      }
+
+      function fsRenderConnChipsFromTable_(){
+        const tbody = el('fsAccountsBody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr.fs-acc-row'));
+        const activeRows = rows.filter(tr => tr.querySelector('.fs-acc-active')?.value === 'TRUE');
+        const connected = activeRows.filter(tr => (tr.querySelector('.fs-acc-status')?.dataset.status || '').toUpperCase() === 'CONNECTED').length;
+        const failed = activeRows.filter(tr => (tr.querySelector('.fs-acc-status')?.dataset.status || '').toUpperCase() === 'FAILED').length;
+        const notTested = Math.max(activeRows.length - connected - failed, 0);
+        const host = el('fsConnChips');
+        if (!host) return;
+        host.innerHTML = `
+          <span class="fs-chip success"><span class="fs-dot success"></span>${connected} Connected</span>
+          <span class="fs-chip danger"><span class="fs-dot danger"></span>${failed} Disconnected</span>
+          <span class="fs-chip warning"><span class="fs-dot warning"></span>${notTested} Not Tested</span>
+        `;
+      }
+
+      function fsFillFilters(filters){
+        const site = el('fsFilterSite');
+        const account = el('fsFilterAccount');
+        if (!site || !account) return;
+        site.innerHTML = '<option value="">Semua Site</option>';
+        account.innerHTML = '<option value="">Semua Account</option>';
+        (filters?.sites || []).forEach(v => {
+          site.innerHTML += `<option value="${fsEscapeHtml(v)}">${fsEscapeHtml(v)}</option>`;
+        });
+        (filters?.accounts || []).forEach(v => {
+          account.innerHTML += `<option value="${fsEscapeHtml(v)}">${fsEscapeHtml(v)}</option>`;
+        });
+      }
+
+      function fsRenderUser(email){
+        const node = el('fsUserChip');
+        if (!node) return;
+        node.innerHTML = `<span class="fs-dot success"></span>User: ${fsEscapeHtml(email || 'unknown@anonymous')}`;
+      }
+
+      function fsRenderActivityLogs(logs){
+        const list = logs || fsTrackerLogs;
+        const html = !list.length
+          ? '<div class="fs-console-line">[INIT] No logs yet.</div>'
+          : list.map(l => `<div class="fs-console-line">[${fsEscapeHtml(l.time || l.timestamp || '-')}] [${fsEscapeHtml(l.level || 'INFO')}] ${fsEscapeHtml(l.action || 'EVENT')} • ${fsEscapeHtml(l.message || '-')}</div>`).join('');
+        ['fsActivityBody','fsActivityBodyRoi','fsActivityBodyAcc'].forEach(id => {
+          const tbody = el(id);
+          if (!tbody) return;
+          tbody.innerHTML = html;
+          tbody.scrollTop = tbody.scrollHeight;
+        });
+      }
+
+      function fsRenderLiveLogInfo(text){
+        const node = el('fsLiveLogInfo');
+        if (!node) return;
+        const stamp = new Date().toLocaleTimeString('id-ID');
+        node.textContent = `${text} • Update ${stamp}`;
+      }
+
+      function fsLoadGoogleSheetLogs(){
+        google.script.run
+          .withSuccessHandler(res => {
+            const logs = res?.logs || [];
+            logs.reverse().forEach(g => {
+              const key = `${g.timestamp}|${g.source}|${g.step}|${g.status}|${g.message}`;
+              if (fsGoogleLogSeen[key]) return;
+              fsGoogleLogSeen[key] = true;
+              fsAppendTrackerLog({
+                time: String(g.timestamp || '').slice(11, 19) || new Date().toLocaleTimeString('id-ID'),
+                level: String(g.status || 'INFO').toUpperCase() === 'ERROR' ? 'ERROR' : 'INFO',
+                action: `GOOGLE_${String(g.step || 'LOG').toUpperCase()}`,
+                message: `${g.source || 'SYSTEM'} • ${g.message || '-'}`
+              });
+            });
+          })
+          .withFailureHandler(() => {})
+          .getGoogleActivityLogs(120);
+      }
+
+      function fsAppendTrackerLog(line){
+        fsTrackerLogs.push(line);
+        if (fsTrackerLogs.length > 500) fsTrackerLogs = fsTrackerLogs.slice(-500);
+        fsRenderActivityLogs(fsTrackerLogs);
+      }
+
+      function fsPushTrackerEvent(action, message, level){
+        if (!(window.google && google.script && google.script.run)) return;
+        google.script.run
+          .withSuccessHandler(function(){})
+          .withFailureHandler(function(){})
+          .trackClientEvent({
+            action: action || 'EVENT',
+            message: message || '-',
+            level: String(level || 'INFO').toUpperCase()
+          });
+      }
+
+      function fsTrace(action, message, level){
+        fsAppendTrackerLog({
+          time: new Date().toLocaleTimeString('id-ID'),
+          level: String(level || 'INFO').toUpperCase(),
+          action: action || 'EVENT',
+          message: message || '-'
+        });
+        fsPushTrackerEvent(action, message, level);
+      }
+
+      function fsRenderAccountAlerts(res){
+        const tbody = el('fsAlertBody');
+        const info = el('fsAlertInfo');
+        if (info) {
+          const s = res?.summary || {};
+          info.innerHTML = `Generated: ${fsEscapeHtml(res?.generatedAt || '-')} • Total alert: <span class="fs-code">${fsEscapeHtml(s.totalAlerts || 0)}</span> • HIGH: <span class="fs-code">${fsEscapeHtml(s.high || 0)}</span> • MEDIUM: <span class="fs-code">${fsEscapeHtml(s.medium || 0)}</span>`;
+        }
+        if (!tbody) return;
+        const alerts = res?.alerts || [];
+        if (!alerts.length) {
+          tbody.innerHTML = '<tr><td colspan="5" class="fs-muted" style="text-align:center; padding: 20px;">Tidak ada alert aktif dari akun.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = alerts.map(a => `
+          <tr>
+            <td title="${fsEscapeHtml(a.adAccountId || '')}"><span class="fs-code">${fsEscapeHtml(a.accountName || '-')}</span></td>
+            <td><span class="fs-code">${fsEscapeHtml(a.type || '-')}</span></td>
+            <td><span class="fs-code">${fsEscapeHtml(a.severity || '-')}</span></td>
+            <td title="${fsEscapeHtml(a.code || '')}">${fsEscapeHtml(a.entityName || '-')}</td>
+            <td title="${fsEscapeHtml(a.code || '')}">${fsEscapeHtml(a.message || '-')}</td>
+          </tr>
+        `).join('');
+      }
+
+      function fsLoadAccountAlerts(){
+        const tbody = el('fsAlertBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="fs-muted" style="text-align:center; padding: 20px;">Memuat alert...</td></tr>';
+        google.script.run
+          .withSuccessHandler(res => {
+            fsRenderAccountAlerts(res || {});
+            fsTrace('ALERT_REFRESH', `Alert dimuat: ${Number(res?.summary?.totalAlerts || 0)}`);
+          })
+          .withFailureHandler(err => {
+            if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: var(--fs-danger);">Gagal memuat alert: ${fsEscapeHtml(err?.message || 'Error')}</td></tr>`;
+            fsTrace('ALERT_REFRESH', err?.message || 'Gagal memuat alert', 'ERROR');
+          })
+          .getAccountNotifications();
+      }
+
+      async function fsSendAlertEmail(){
+        const ok = await fsConfirmDialog({
+          title: 'Kirim Notifikasi Email',
+          message: 'Kirim notifikasi alert akun ke triosptr@trendhorizone.id sekarang?',
+          okText: 'Ya, Kirim Email',
+          danger: false
+        });
+        if (!ok) return;
+        fsSetLoader('fsCampBudgetLoader', true);
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsCampBudgetLoader', false);
+            fsToast('Email notifikasi', res?.message || `Terkirim ke ${res?.to || 'tujuan email'}`);
+            fsLoadActivityLogs();
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsCampBudgetLoader', false);
+            fsToast('Kirim email gagal', err?.message || 'Terjadi kesalahan');
+          })
+          .sendAccountAlertsEmail({ to: 'triosptr@trendhorizone.id' });
+      }
+
+      function fsLoadActivityLogs(options){
+        const opts = options || {};
+        if (fsTrackerPulling) return;
+        fsTrackerPulling = true;
+        google.script.run
+          .withSuccessHandler(res => {
+            fsTrackerPulling = false;
+            const events = res?.events || [];
+            events.forEach(e => {
+              fsAppendTrackerLog({
+                id: Number(e.id || 0),
+                time: String(e.timestamp || '').slice(11, 19) || new Date().toLocaleTimeString('id-ID'),
+                level: e.level || 'INFO',
+                action: e.action || 'EVENT',
+                message: e.message || '-'
+              });
+              fsTrackerLastId = Math.max(fsTrackerLastId, Number(e.id || 0));
+            });
+            if (res?.lastId) fsTrackerLastId = Math.max(fsTrackerLastId, Number(res.lastId || 0));
+            fsLoadGoogleSheetLogs();
+            fsRenderLiveLogInfo('Live log active');
+            if (!opts.silent && !events.length && !fsTrackerLogs.length) fsRenderActivityLogs([]);
+          })
+          .withFailureHandler(() => {
+            fsTrackerPulling = false;
+            fsRenderLiveLogInfo('Live log sync failed');
+          })
+          .getTrackerStream({ sinceId: fsTrackerLastId, limit: 300 });
+      }
+
+      function fsStartLiveLog(){
+        if (fsLiveLogTimer) clearInterval(fsLiveLogTimer);
+        fsTrace('TRACKER_START', 'App tracker started');
+        fsLoadActivityLogs();
+        fsLiveLogTimer = setInterval(() => {
+          if (document.hidden) return;
+          fsLoadActivityLogs({ silent: true });
+        }, 5000);
+      }
+
+      function fsClearTrackerLogs(){
+        fsTrackerLogs = [];
+        fsRenderActivityLogs(fsTrackerLogs);
+        fsTrace('TRACKER_CLEAR', 'Tracker log dibersihkan', 'WARN');
+      }
+
+      function fsFillCampaignAccountOptions(accounts){
+        const budgetSel = el('fsBudgetAccount');
+        if (!budgetSel) return;
+        const list = (accounts || []).filter(a => a && a.active && a.adAccountId).sort((a,b) => String(a.accountName||'').localeCompare(String(b.accountName||''), 'id'));
+        const options = list.map(a => {
+          const id = fsEscapeHtml(a.adAccountId);
+          const name = fsEscapeHtml(a.accountName || a.adAccountId);
+          return `<option value="${id}">${name} (${id})</option>`;
+        }).join('');
+        budgetSel.innerHTML = options || '<option value="">Tidak ada akun aktif</option>';
+      }
+
+      let fsCampaignMap = {};
+
+      function fsRenderCampaignControl(list){
+        const tbody = el('fsCampaignCtrlBody');
+        if (!tbody) return;
+        if (!list || !list.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="fs-muted" style="text-align:center; padding:24px;">Tidak ada campaign ditemukan.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = list.map(c => {
+          const status = String(c.status || '').toUpperCase();
+          const isOn = status === 'ACTIVE';
+          const budgetType = c.daily_budget ? 'DAILY' : (c.lifetime_budget ? 'LIFETIME' : 'DAILY');
+          const currentBudget = Number(c.daily_budget || c.lifetime_budget || 0);
+          const id = fsEscapeHtml(c.id || '');
+          const nm = fsEscapeHtml(c.name || c.id || '-');
+          return `
+            <tr>
+              <td>
+                <button class="fs-toggle ${isOn ? 'on' : ''}" title="${isOn ? 'ACTIVE' : 'PAUSED'}" onclick="fsToggleCampaignStatus('${id}')"></button>
+              </td>
+              <td class="fs-cell-campaign">
+                <button class="fs-camp-link" type="button" onclick="fsOpenCampaignDetail('${id}')">${nm}</button>
+                <div class="fs-sub" style="margin-top:2px;">${fsEscapeHtml(c.objective || '-')} • ${fsEscapeHtml(status || '-')}</div>
+              </td>
+              <td><span class="fs-code">${budgetType}</span></td>
+              <td style="vertical-align:top;">
+                <div class="fs-budget-live">
+                  <div class="fs-right" style="font-weight:800;">Rp ${fsFormatNumber(currentBudget)}</div>
+                  <div class="fs-up-row" style="justify-content:flex-end;">
+                    <input class="fs-input" id="fsDirectBudget-${id}" type="number" min="1" step="1" value="${Math.round(currentBudget)}" style="width:150px; padding:7px 9px;" />
+                    <button class="fs-mini primary" onclick="fsSetBudgetDirect('${id}')">Set Budget</button>
+                  </div>
+                </div>
+              </td>
+              <td style="vertical-align:top;">
+                <div class="fs-pct-wrap">
+                  <div class="fs-up-row">
+                    <button class="fs-mini pct primary" onclick="fsUpBudgetPercent('${id}',20)">+20%</button>
+                    <button class="fs-mini pct primary" onclick="fsUpBudgetPercent('${id}',30)">+30%</button>
+                    <button class="fs-mini pct primary" onclick="fsUpBudgetPercent('${id}',50)">+50%</button>
+                    <button class="fs-mini pct primary" onclick="fsUpBudgetPercent('${id}',100)">+100%</button>
+                  </div>
+                  <div class="fs-up-row">
+                    <input class="fs-input" id="fsPct-${id}" type="number" min="1" step="1" style="width:92px; padding:7px 9px;" placeholder="%"/>
+                    <button class="fs-mini soft" onclick="fsUpBudgetPercentCustom('${id}')">Custom</button>
+                  </div>
+                  <div class="fs-up-row">
+                    <input class="fs-input" id="fsNominal-${id}" type="number" min="1" step="1" style="width:135px; padding:7px 9px;" placeholder="+Rp"/>
+                    <button class="fs-mini primary" onclick="fsUpBudgetNominal('${id}')">Scale Up</button>
+                  </div>
+                </div>
+              </td>
+              <td style="vertical-align:top;">
+                <div class="fs-camp-actions">
+                  <button class="fs-mini soft" type="button" onclick="fsOpenCampaignDetail('${id}')">Detail</button>
+                  <button class="fs-mini brand" type="button" onclick="fsExportCampaignMetadata('${id}')">Export</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      function fsLoadCampaignOptions(){
+        const adAccountId = el('fsBudgetAccount')?.value || '';
+        const includeInactive = el('fsBudgetShowInactive')?.value || 'FALSE';
+        const tbody = el('fsCampaignCtrlBody');
+        if (!tbody) return;
+        if (!adAccountId) {
+          tbody.innerHTML = '<tr><td colspan="6" class="fs-muted" style="text-align:center; padding:24px;">Pilih akun iklan dulu.</td></tr>';
+          return;
+        }
+
+        fsSetLoader('fsCampBudgetLoader', true);
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsCampBudgetLoader', false);
+            const list = res?.campaigns || [];
+            fsCampaignMap = {};
+            list.forEach(c => { if (c?.id) fsCampaignMap[String(c.id)] = c; });
+            fsRenderCampaignControl(list);
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsCampBudgetLoader', false);
+            tbody.innerHTML = '<tr><td colspan="6" class="fs-muted" style="text-align:center; padding:24px; color:var(--fs-danger);">Gagal memuat campaign</td></tr>';
+            fsToast('Load campaign gagal', err?.message || 'Terjadi kesalahan');
+          })
+          .listCampaigns({ adAccountId, includeInactive, limit: 500 });
+      }
+
+      function fsCloseCampaignDetail(){
+        const root = el('fsCampDetail');
+        if (root) root.classList.remove('is-show');
+      }
+
+      function fsRenderCampaignDetail(res){
+        const campaign = res?.campaign || {};
+        const summary = res?.summary || {};
+        const adsets = res?.adsets || [];
+        const ads = res?.ads || [];
+        fsCurrentAdsMap = {};
+        ads.forEach(a => { if (a?.adId) fsCurrentAdsMap[String(a.adId)] = a; });
+        const renderList = (arr, fallbackText) => {
+          const items = (arr || []).filter(Boolean).map(v => String(v));
+          if (!items.length) return fsEscapeHtml(fallbackText || '-');
+          return `<ul style="margin:0; padding-left:18px;">${items.map(v => `<li>${fsEscapeHtml(v)}</li>`).join('')}</ul>`;
+        };
+        const title = el('fsCampDetailTitle');
+        const sub = el('fsCampDetailSub');
+        if (title) title.textContent = `Detail Campaign • ${campaign.name || campaign.id || '-'}`;
+        if (sub) sub.textContent = `${campaign.objective || '-'} • ${campaign.status || '-'} • Updated ${campaign.updated_time || '-'}`;
+        const joinOrDash = (arr) => (arr && arr.length ? arr.join(', ') : '-');
+        const statAds = el('fsDetStatAds');
+        const statAdsets = el('fsDetStatAdsets');
+        const statMedia = el('fsDetStatMedia');
+        const mediaCount = ads.reduce((n, a) => n + ((a.mediaList || []).length || 0), 0);
+        if (statAds) statAds.textContent = `Ads: ${ads.length}`;
+        if (statAdsets) statAdsets.textContent = `Adsets: ${adsets.length}`;
+        if (statMedia) statMedia.textContent = `Media: ${mediaCount}`;
+        const countries = el('fsDetailCountries');
+        const interests = el('fsDetailInterests');
+        const devices = el('fsDetailDevices');
+        const placements = el('fsDetailPlacements');
+        if (countries) countries.textContent = joinOrDash(summary.countries || []);
+        if (interests) interests.textContent = joinOrDash(summary.interests || []);
+        if (devices) devices.textContent = joinOrDash(summary.devices || []);
+        if (placements) placements.textContent = joinOrDash(summary.placements || []);
+        const tbody = el('fsDetailAdsetsBody');
+        if (tbody) {
+          if (!adsets.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="fs-muted" style="text-align:center; padding:16px;">Tidak ada adset.</td></tr>';
+          } else {
+            tbody.innerHTML = adsets.map(a => `
+              <tr>
+                <td class="fs-cell-campaign">${fsEscapeHtml(a.name || a.id || '-')}</td>
+                <td>${fsEscapeHtml(a.status || '-')}</td>
+                <td>${fsEscapeHtml(a.budgetType || '-')} ${a.budgetValue ? '• Rp ' + fsFormatNumber(a.budgetValue) : ''}</td>
+                <td>${fsEscapeHtml(a.optimizationGoal || '-')}</td>
+                <td>${fsEscapeHtml(a.billingEvent || '-')}</td>
+              </tr>
+            `).join('');
+          }
+        }
+        const adsBody = el('fsDetailAdsBody');
+        if (adsBody) {
+          if (!ads.length) {
+            adsBody.innerHTML = '<div class="fs-muted" style="text-align:center; padding:16px;">Tidak ada metadata iklan.</div>';
+          } else {
+            adsBody.innerHTML = ads.map(a => `
+              <div class="fs-meta-card">
+                <div class="fs-meta-card-head">
+                  <div class="fs-cell-campaign">${fsEscapeHtml(a.adName || a.adId || '-')}</div>
+                  <div style="display:flex; gap:8px; align-items:center;">
+                    <span class="fs-code">${fsEscapeHtml(a.callToAction || '-')}</span>
+                    <button class="fs-mini soft" type="button" onclick="fsStartEditAd('${fsEscapeHtml(a.adId || '')}')">Edit</button>
+                  </div>
+                </div>
+                <div class="fs-meta-media">
+                  ${a.mediaList && a.mediaList.length ? a.mediaList.slice(0,10).map(m => `<img src="${fsEscapeHtml(m)}" />`).join('') : '<span class="fs-muted">Tidak ada media</span>'}
+                </div>
+                <div class="fs-sub" style="margin-top:6px;">${(a.mediaList || []).length} media ditemukan</div>
+                <div class="fs-meta-grid">
+                  <div class="fs-meta-field"><div class="fs-meta-label">Title</div><div class="fs-meta-val">${renderList(a.titleList || String(a.title || '').split(' | '), a.title || '-')}</div></div>
+                  <div class="fs-meta-field"><div class="fs-meta-label">Headline</div><div class="fs-meta-val">${renderList(a.headlineList || String(a.headline || '').split(' | '), a.headline || '-')}</div></div>
+                  <div class="fs-meta-field"><div class="fs-meta-label">Description</div><div class="fs-meta-val">${renderList(a.descriptionList || String(a.description || '').split(' | '), a.description || '-')}</div></div>
+                  <div class="fs-meta-field"><div class="fs-meta-label">Link URL</div><div class="fs-meta-val">${fsEscapeHtml(a.linkUrl || '-')}</div></div>
+                  <div class="fs-meta-field"><div class="fs-meta-label">Parameter</div><div class="fs-meta-val">${fsEscapeHtml(a.parameter || '-')}</div></div>
+                  <div class="fs-meta-field"><div class="fs-meta-label">Ad ID</div><div class="fs-meta-val">${fsEscapeHtml(a.adId || '-')}</div></div>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      }
+
+      function fsOpenCampaignDetail(campaignId){
+        const adAccountId = el('fsBudgetAccount')?.value || '';
+        if (!adAccountId || !campaignId) return;
+        fsCurrentDetailCampaignId = String(campaignId);
+        fsCurrentAdsMap = {};
+        el('fsEditAdId').value = '';
+        for (let i=1;i<=5;i++){
+          el(`fsEditTitle${i}`).value = '';
+          el(`fsEditHeadline${i}`).value = '';
+          el(`fsEditDescription${i}`).value = '';
+        }
+        el('fsEditLinkUrl').value = '';
+        el('fsEditParameter').value = '';
+        el('fsEditCTA').value = '';
+        el('fsEditAdName').textContent = 'Belum ada ad dipilih';
+        el('fsEditMediaGrid').innerHTML = '<div class="fs-muted">Belum ada ad dipilih</div>';
+        const root = el('fsCampDetail');
+        const tbody = el('fsDetailAdsetsBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="fs-muted" style="text-align:center; padding:16px;">Memuat adset...</td></tr>';
+        const adsBody = el('fsDetailAdsBody');
+        if (adsBody) adsBody.innerHTML = '<div class="fs-muted" style="text-align:center; padding:16px;">Memuat metadata iklan...</div>';
+        if (root) root.classList.add('is-show');
+        google.script.run
+          .withSuccessHandler(res => {
+            fsRenderCampaignDetail(res);
+            fsLoadActivityLogs();
+          })
+          .withFailureHandler(err => {
+            fsToast('Gagal memuat detail campaign', err?.message || 'Terjadi kesalahan');
+            fsCloseCampaignDetail();
+          })
+          .getCampaignTargetingDetail({ adAccountId, campaignId });
+      }
+
+      async function fsExportCampaignMetadata(campaignId){
+        const adAccountId = el('fsBudgetAccount')?.value || '';
+        if (!adAccountId || !campaignId) {
+          fsToast('Data belum lengkap', 'Pilih akun dan campaign terlebih dahulu');
+          return;
+        }
+        const c = fsCampaignMap[String(campaignId)] || {};
+        const ok = await fsConfirmDialog({
+          title: 'Verifikasi Export Metadata',
+          message: `Export semua metadata campaign "${c.name || campaignId}" ke sheet?`,
+          okText: 'Ya, Export',
+          danger: false
+        });
+        if (!ok) return;
+
+        fsSetLoader('fsCampBudgetLoader', true);
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsCampBudgetLoader', false);
+            fsToast('Export berhasil', `${res?.rows || 0} baris → ${res?.sheetName || 'sheet export'}`);
+            fsLoadActivityLogs();
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsCampBudgetLoader', false);
+            fsToast('Export gagal', err?.message || 'Terjadi kesalahan');
+          })
+          .exportCampaignMetadataToSheet({ adAccountId, campaignId });
+      }
+
+      function fsExportCurrentCampaignMetadata(){
+        if (!fsCurrentDetailCampaignId) {
+          fsToast('Campaign belum terdeteksi', 'Buka detail campaign terlebih dahulu');
+          return;
+        }
+        fsExportCampaignMetadata(fsCurrentDetailCampaignId);
+      }
+
+      function fsStartEditAd(adId){
+        const ad = fsCurrentAdsMap[String(adId)];
+        if (!ad) {
+          fsToast('Ad tidak ditemukan', 'Silakan muat ulang detail campaign');
+          return;
+        }
+        el('fsEditAdId').value = ad.adId || '';
+        const titles = ad.titleList && ad.titleList.length ? ad.titleList : (ad.title ? String(ad.title).split(' | ') : []);
+        const heads = ad.headlineList && ad.headlineList.length ? ad.headlineList : (ad.headline ? String(ad.headline).split(' | ') : []);
+        const descs = ad.descriptionList && ad.descriptionList.length ? ad.descriptionList : (ad.description ? String(ad.description).split(' | ') : []);
+        for (let i=1;i<=5;i++){
+          el(`fsEditTitle${i}`).value = titles[i-1] || '';
+          el(`fsEditHeadline${i}`).value = heads[i-1] || '';
+          el(`fsEditDescription${i}`).value = descs[i-1] || '';
+        }
+        el('fsEditLinkUrl').value = ad.linkUrl || '';
+        el('fsEditParameter').value = ad.parameter || '';
+        el('fsEditCTA').value = ad.callToAction || '';
+        el('fsEditAdName').textContent = `Sedang edit: ${ad.adName || ad.adId}`;
+        const mediaGrid = el('fsEditMediaGrid');
+        if (mediaGrid) {
+          const media = ad.mediaList || [];
+          mediaGrid.innerHTML = media.length
+            ? media.map(m => `<div class="fs-media-item"><img src="${fsEscapeHtml(m)}" /></div>`).join('')
+            : '<div class="fs-muted">Tidak ada media pada creative ini</div>';
+        }
+      }
+
+      async function fsSaveAdMetadata(){
+        const adAccountId = el('fsBudgetAccount')?.value || '';
+        const adId = (el('fsEditAdId')?.value || '').trim();
+        if (!adAccountId || !adId) {
+          fsToast('Belum lengkap', 'Pilih ad dari tabel terlebih dahulu');
+          return;
+        }
+        const titleList = Array.from({ length: 5 }, (_, i) => (el(`fsEditTitle${i+1}`)?.value || '').trim()).filter(Boolean);
+        const headlineList = Array.from({ length: 5 }, (_, i) => (el(`fsEditHeadline${i+1}`)?.value || '').trim()).filter(Boolean);
+        const descriptionList = Array.from({ length: 5 }, (_, i) => (el(`fsEditDescription${i+1}`)?.value || '').trim()).filter(Boolean);
+        const linkUrl = (el('fsEditLinkUrl')?.value || '').trim();
+        const parameter = (el('fsEditParameter')?.value || '').trim();
+        const callToAction = (el('fsEditCTA')?.value || '').trim();
+        if (!titleList.length || !headlineList.length || !descriptionList.length) {
+          fsToast('Metadata belum lengkap', 'Isi minimal 1 item untuk title, headline, dan description');
+          return;
+        }
+        const ok = await fsConfirmDialog({
+          title: 'Verifikasi Edit Iklan',
+          message: `Yakin simpan perubahan metadata untuk Ad ${adId}?`,
+          okText: 'Ya, Simpan',
+          danger: false
+        });
+        if (!ok) return;
+
+        fsSetLoader('fsEditAdLoader', true);
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsEditAdLoader', false);
+            fsToast('Berhasil', res?.message || 'Metadata iklan diperbarui');
+            if (fsCurrentDetailCampaignId) fsOpenCampaignDetail(fsCurrentDetailCampaignId);
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsEditAdLoader', false);
+            fsToast('Gagal update metadata', err?.message || 'Terjadi kesalahan');
+          })
+          .updateAdMetadata({ adAccountId, adId, titleList, headlineList, descriptionList, linkUrl, parameter, callToAction });
+      }
+
+      function fsRenderSummary(summary){
+        el('fsSumSpend').textContent = fsFormatNumber(summary?.totalSpend || 0);
+        el('fsSumBudget').textContent = fsFormatNumber(summary?.totalBudget || 0);
+        el('fsSumClick').textContent = fsFormatNumber(summary?.totalClicks || 0);
+        el('fsSumCpr').textContent = fsFormatNumber(summary?.avgCpr || 0);
+      }
+
+      function fsRenderLastSyncInfo(info){
+        const hasSync = !!(info?.at && info?.action);
+        const txt = hasSync
+          ? `Last Sync: ${info?.at} • By: ${info?.by || '-'} • Action: ${info?.action}`
+          : 'Last Sync: - • By: - • Action: -';
+        ['fsSyncInfoDash','fsSyncInfoAcc','fsSyncInfoRoi'].forEach(id => {
+          const n = el(id);
+          if (n) n.textContent = txt;
+        });
+      }
+
+      function fsLoadLastSyncInfo(){
+        google.script.run
+          .withSuccessHandler(res => fsRenderLastSyncInfo(res || {}))
+          .withFailureHandler(() => {})
+          .getLatestSyncInfo();
+      }
+
+      function fsRenderRoiToday(roi){
+        const summary = roi?.summary || {};
+        el('fsRoiTotalModal').textContent = fsFormatNumber(summary.totalModal || 0);
+        el('fsRoiTotalRevenue').textContent = fsFormatNumber(summary.totalRevenue || 0);
+        const roiOverallNode = el('fsRoiOverall');
+        const roiOverallPercent = fsRoiToPercent(summary.roiOverall);
+        if (roiOverallNode) {
+          roiOverallNode.innerHTML = `<span class="fs-roi-badge ${fsRoiClass(roiOverallPercent)}">${fsFormatNumber(roiOverallPercent)}%</span>`;
+        }
+        fsApplyRoiSummaryTheme(roiOverallPercent);
+        fsRoiRowsRaw = roi?.rows || [];
+        const range = roi?.range || {};
+        const rangeInfo = el('fsRoiRangeInfo');
+        if (rangeInfo) rangeInfo.textContent = `Range: ${range.startDate || '-'} to ${range.endDate || '-'}`;
+        fsApplyRoiFilter();
+      }
+
+      function fsLoadRoiToday(){
+        const startDate = el('fsRoiStart')?.value || '';
+        const endDate = el('fsRoiEnd')?.value || '';
+        const rangeInfo = el('fsRoiRangeInfo');
+        if (rangeInfo) rangeInfo.textContent = 'Range: loading ROI data...';
+        google.script.run
+          .withSuccessHandler(res => {
+            const roi = res?.roiToday || {};
+            fsRenderRoiToday(roi);
+            const rs = roi?.range || {};
+            if (el('fsRoiStart')) el('fsRoiStart').value = rs.startDate || startDate;
+            if (el('fsRoiEnd')) el('fsRoiEnd').value = rs.endDate || endDate;
+          })
+          .withFailureHandler(err => {
+            fsToast('ROI load failed', err?.message || 'Error');
+          })
+          .getRoiTodayData({ startDate, endDate });
+      }
+
+      function fsRoiClass(roiVal){
+        const n = Number(roiVal || 0);
+        if (n < 150) return 'fs-roi-low';
+        if (n <= 250) return 'fs-roi-mid';
+        return 'fs-roi-high';
+      }
+
+      function fsRoiToPercent(roiVal){
+        return Number(roiVal || 0) * 100;
+      }
+
+      function fsApplyRoiFilter(){
+        const query = String(el('fsRoiSiteFilter')?.value || '').trim().toLowerCase();
+        const filtered = fsRoiRowsRaw.filter(r => {
+          const site = String(r?.site || '').toLowerCase();
+          if (query && site.indexOf(query) === -1) return false;
+          return true;
+        }).sort((a, b) => fsRoiToPercent(b.roi) - fsRoiToPercent(a.roi));
+        fsRoiRowsFiltered = filtered;
+        el('fsRoiTotalSite').textContent = fsFormatNumber(filtered.length || 0);
+        const tbody = el('fsRoiBody');
+        if (!tbody) return;
+        if (!filtered.length) {
+          tbody.innerHTML = '<tr><td colspan="5" class="fs-muted" style="text-align:center; padding: 18px;">No ROI data for the selected site filter.</td></tr>';
+          fsRenderRoiChart([]);
+          return;
+        }
+        tbody.innerHTML = filtered.map(r => {
+          const roiPercent = fsRoiToPercent(r.roi);
+          return `
+            <tr>
+              <td>${fsEscapeHtml(r.site || '-')}</td>
+              <td class="fs-right">Rp ${fsFormatNumber(r.modalIklan || 0)}</td>
+              <td class="fs-right">Rp ${fsFormatNumber(r.revenue || 0)}</td>
+              <td class="fs-right">Rp ${fsFormatNumber(r.fixRevenue || 0)}</td>
+              <td class="fs-right"><span class="fs-roi-badge ${fsRoiClass(roiPercent)}">${fsFormatNumber(roiPercent)}%</span></td>
+            </tr>
+          `;
+        }).join('');
+        fsRenderRoiChart(filtered);
+      }
+
+      function fsClearRoiSiteFilter(){
+        if (el('fsRoiSiteFilter')) el('fsRoiSiteFilter').value = '';
+        fsApplyRoiFilter();
+      }
+
+      async function fsCopyRoiUnderperformReport(){
+        const rows = (fsRoiRowsFiltered || []).filter(r => fsRoiToPercent(r.roi) < 150);
+        const text = fsBuildRoiReportText_('ROI Underperform Report', rows, 'Need attention for ads and wp setting');
+        try {
+          await navigator.clipboard.writeText(text);
+          fsToast('Copy report', 'ROI Underperform report copied');
+        } catch (e) {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+          fsToast('Copy report', 'ROI Underperform report copied');
+        }
+      }
+
+      async function fsCopyRoiScaleupReport(){
+        const rows = (fsRoiRowsFiltered || []).filter(r => fsRoiToPercent(r.roi) > 250);
+        const text = fsBuildRoiReportText_('Recommendation to Scale Up', rows, 'Recommended to scale up budget gradually');
+        try {
+          await navigator.clipboard.writeText(text);
+          fsToast('Copy report', 'Scale-up recommendation report copied');
+        } catch (e) {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+          fsToast('Copy report', 'Scale-up recommendation report copied');
+        }
+      }
+
+      function fsBuildRoiReportText_(title, rows, note){
+        const lines = [];
+        lines.push(title);
+        lines.push(`Generated: ${new Date().toLocaleString('id-ID')}`);
+        lines.push(`Total Sites: ${rows.length}`);
+        lines.push('');
+        if (!rows.length) {
+          lines.push('No sites match this report criteria.');
+          return lines.join('\n');
+        }
+        rows.forEach((r, idx) => {
+          lines.push(`${idx + 1}. ${r.site}`);
+          lines.push(`   ROI: ${fsFormatNumber(fsRoiToPercent(r.roi))}%`);
+          lines.push(`   Note: ${note}`);
+        });
+        return lines.join('\n');
+      }
+
+      function fsApplyRoiSummaryTheme(roiPercent){
+        const cls = fsRoiClass(roiPercent).replace('fs-roi-', 'state-');
+        ['fsRoiCardModal','fsRoiCardRevenue','fsRoiCardOverall','fsRoiCardSite'].forEach(id => {
+          const node = el(id);
+          if (!node) return;
+          node.classList.remove('state-low','state-mid','state-high');
+          node.classList.add(cls);
+        });
+      }
+
+      function fsRenderRoiChart(rows){
+        const canvas = el('fsChartRoi');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (fsChartRoi) fsChartRoi.destroy();
+        const c = fsChartColors();
+        fsChartRoi = new Chart(ctx,{
+          type:'bar',
+          data:{
+            labels: (rows || []).slice(0,20).map(r => r.site || '-'),
+            datasets:[{
+              label:'ROI (%)',
+              data: (rows || []).slice(0,20).map(r => fsRoiToPercent(r.roi)),
+              backgroundColor: 'rgba(16,185,129,0.28)',
+              borderColor: 'rgba(16,185,129,0.95)',
+              borderWidth: 1,
+              borderRadius: 8
+            }]
+          },
+          options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{
+              x:{ticks:{color:c.text}, grid:{color:c.grid}},
+              y:{ticks:{color:c.text}, grid:{color:c.grid}}
+            }
+          }
+        });
+      }
+
+      function fsRenderTable(rows){
+        const tbody = el('fsDataBody');
+        if (!tbody) return;
+        if (!rows || !rows.length) {
+          tbody.innerHTML = '<tr><td colspan="8" class="fs-muted" style="text-align:center; padding: 24px;">Tidak ada data untuk filter yang dipilih</td></tr>';
+          return;
+        }
+        tbody.innerHTML = rows.map(r => {
+          return `
+            <tr>
+              <td style="font-weight:800;">${fsEscapeHtml(r.date)}</td>
+              <td style="font-weight:700;">${fsEscapeHtml(r.accountName)}</td>
+              <td class="fs-cell-campaign" title="${fsEscapeHtml(r.campaignName)}">${fsEscapeHtml(r.campaignName)}</td>
+              <td><span class="fs-code">${fsEscapeHtml(r.siteName || 'N/A')}</span></td>
+              <td class="fs-right">Rp ${fsFormatNumber(r.totalBudget)}</td>
+              <td class="fs-right">Rp ${fsFormatNumber(r.totalSpend)}</td>
+              <td class="fs-right">Rp ${fsFormatNumber(r.cpr)}</td>
+              <td class="fs-right">${fsFormatNumber(r.totalClick)}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      function fsChartColors(){
+        const shell = el('freshShell');
+        const theme = shell ? shell.getAttribute('data-theme') : 'light';
+        if (theme === 'dark') {
+          return {
+            text: 'rgba(229,231,235,0.9)',
+            grid: 'rgba(148,163,184,0.16)',
+            primary: 'rgba(24,119,242,0.95)',
+            primaryFill: 'rgba(24,119,242,0.24)'
+          };
+        }
+        return {
+          text: 'rgba(15,23,42,0.8)',
+          grid: 'rgba(15,23,42,0.10)',
+          primary: 'rgba(24,119,242,0.95)',
+          primaryFill: 'rgba(24,119,242,0.20)'
+        };
+      }
+
+      let fsLastCharts = null;
+
+      function fsRenderCharts(charts){
+        if (!charts) return;
+        fsLastCharts = charts;
+        fsRenderDateChart(charts.byDate || []);
+        fsRenderSiteChart(charts.bySite || []);
+      }
+
+      function fsRenderDateChart(rows){
+        const canvas = el('fsChartDate');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (fsChartDate) fsChartDate.destroy();
+        const c = fsChartColors();
+        fsChartDate = new Chart(ctx,{
+          type:'line',
+          data:{
+            labels: rows.map(r => r.date),
+            datasets:[{
+              label:'Spend',
+              data: rows.map(r => Number(r.spend || 0)),
+              borderColor: c.primary,
+              backgroundColor: c.primaryFill,
+              borderWidth: 2,
+              tension: .25,
+              fill: true,
+              pointRadius: 2
+            }]
+          },
+          options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{
+              x:{ticks:{color:c.text}, grid:{color:c.grid}},
+              y:{ticks:{color:c.text}, grid:{color:c.grid}}
+            }
+          }
+        });
+      }
+
+      function fsRenderSiteChart(rows){
+        const canvas = el('fsChartSite');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (fsChartSite) fsChartSite.destroy();
+        const c = fsChartColors();
+        fsChartSite = new Chart(ctx,{
+          type:'bar',
+          data:{
+            labels: rows.map(r => r.site),
+            datasets:[{
+              label:'Spend',
+              data: rows.map(r => Number(r.spend || 0)),
+              backgroundColor: c.primaryFill,
+              borderColor: c.primary,
+              borderWidth: 1,
+              borderRadius: 8
+            }]
+          },
+          options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{
+              x:{ticks:{color:c.text}, grid:{color:c.grid}},
+              y:{ticks:{color:c.text}, grid:{color:c.grid}}
+            }
+          }
+        });
+      }
+
+      function fsAccountRow(acc){
+        const active = acc && acc.active ? 'TRUE' : 'FALSE';
+        const name = fsEscapeHtml(acc?.accountName || '');
+        const id = fsEscapeHtml(acc?.adAccountId || '');
+        const token = fsEscapeHtml(acc?.accessToken || '');
+        const last = fsEscapeHtml(acc?.lastTestAt || '-');
+        const rawStatus = String(acc?.lastTestStatus || '').toUpperCase();
+        const status = fsStatusPill(rawStatus);
+        return `
+          <tr class="fs-acc-row">
+            <td>
+              <select class="fs-select fs-acc-active" style="min-width:84px;">
+                <option value="TRUE" ${active === 'TRUE' ? 'selected' : ''}>TRUE</option>
+                <option value="FALSE" ${active === 'FALSE' ? 'selected' : ''}>FALSE</option>
+              </select>
+            </td>
+            <td><input class="fs-input fs-acc-name" value="${name}" placeholder="Account Name" /></td>
+            <td><input class="fs-input fs-acc-id" value="${id}" placeholder="act_123..." /></td>
+            <td>
+              <div class="fs-token">
+                <input class="fs-input fs-acc-token" type="password" value="${token}" placeholder="EAAB..." />
+                <button class="fs-mini soft" data-act="toggleToken" type="button">Show</button>
+              </div>
+            </td>
+            <td class="fs-acc-status" data-status="${fsEscapeHtml(rawStatus)}">${status}</td>
+            <td class="fs-muted fs-acc-last" style="font-size:12px; font-weight:800;">${last}</td>
+            <td>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="fs-mini soft" data-act="test" type="button">Test</button>
+                <button class="fs-mini danger" data-act="remove" type="button">Hapus</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+
+      function fsRenderAccounts(accounts){
+        const tbody = el('fsAccountsBody');
+        const summary = el('fsAccSummary');
+        if (!tbody) return;
+        const raw = (accounts || []).filter(a => a && (a.accountName || a.adAccountId));
+        const rank = (s) => {
+          const v = String(s || '').toUpperCase();
+          if (v === 'CONNECTED') return 0;
+          if (v === 'FAILED') return 1;
+          if (v === 'CHECKING') return 2;
+          return 3;
+        };
+        const list = raw.slice().sort((a, b) => {
+          const activeScore = (b.active ? 1 : 0) - (a.active ? 1 : 0);
+          if (activeScore !== 0) return activeScore;
+          const statusScore = rank(a.lastTestStatus) - rank(b.lastTestStatus);
+          if (statusScore !== 0) return statusScore;
+          return String(a.accountName || '').localeCompare(String(b.accountName || ''), 'id');
+        });
+
+        if (summary) {
+          const connected = list.filter(a => String(a.lastTestStatus || '').toUpperCase() === 'CONNECTED').length;
+          const disconnected = list.filter(a => String(a.lastTestStatus || '').toUpperCase() === 'FAILED').length;
+          const notTested = Math.max(list.length - connected - disconnected, 0);
+          summary.innerHTML = `
+            <div class="left">Akun dibaca langsung dari SETTINGS_META dan tetap tampil setelah reload.</div>
+            <div class="vals">
+              <span class="fs-chip success"><span class="fs-dot success"></span>${connected} Connected</span>
+              <span class="fs-chip danger"><span class="fs-dot danger"></span>${disconnected} Disconnected</span>
+              <span class="fs-chip warning"><span class="fs-dot warning"></span>${notTested} Not Tested</span>
+              <span class="fs-chip">${list.length} Total</span>
+            </div>
+          `;
+        }
+
+        if (!list.length) {
+          tbody.innerHTML = '<tr><td colspan="7" class="fs-muted" style="text-align:center; padding: 24px;">Belum ada akun. Klik + Tambah, isi data, lalu Simpan.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = list.map(a => fsAccountRow(a)).join('');
+      }
+
+      function fsCollectAccounts(){
+        const tbody = el('fsAccountsBody');
+        if (!tbody) return [];
+        const rows = Array.from(tbody.querySelectorAll('tr.fs-acc-row'));
+        return rows.map(tr => {
+          return {
+            active: tr.querySelector('.fs-acc-active').value === 'TRUE',
+            accountName: tr.querySelector('.fs-acc-name').value.trim(),
+            adAccountId: tr.querySelector('.fs-acc-id').value.trim(),
+            accessToken: tr.querySelector('.fs-acc-token').value.trim()
+          };
+        }).filter(a => a.accountName || a.adAccountId || a.accessToken);
+      }
+
+      function fsAddAccountRow(){
+        const tbody = el('fsAccountsBody');
+        if (!tbody) return;
+        if (tbody.querySelector('td[colspan]')) tbody.innerHTML = '';
+        tbody.insertAdjacentHTML('beforeend', fsAccountRow({ active: true }));
+      }
+
+      function fsSaveAccounts(){
+        fsSetLoader('fsAccLoader', true);
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsAccLoader', false);
+            fsToast('Akun tersimpan', res?.message || 'Berhasil menyimpan akun');
+            fsBootstrap({ skipDashboard: true });
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsAccLoader', false);
+            fsToast('Gagal menyimpan', err?.message || 'Terjadi kesalahan');
+          })
+          .saveAccounts(fsCollectAccounts());
+      }
+
+      function fsTestAllAccounts(){
+        fsSetLoader('fsAccLoader', true);
+        fsTrace('TEST_ALL_ACCOUNT', 'Mulai test semua akun');
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsAccLoader', false);
+            const total = Number(res?.total || 0);
+            const connected = Number(res?.connected || 0);
+            const failed = Number(res?.failed || 0);
+            fsToast('Test all selesai', `Total ${total} • Connected ${connected} • Failed ${failed}`);
+            fsTrace('TEST_ALL_ACCOUNT', `Selesai: total ${total}, connected ${connected}, failed ${failed}`);
+            fsBootstrap({ skipDashboard: true });
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsAccLoader', false);
+            fsToast('Test all gagal', err?.message || 'Terjadi kesalahan');
+            fsTrace('TEST_ALL_ACCOUNT', err?.message || 'Gagal test semua akun', 'ERROR');
+          })
+          .testAllAccountsConnection();
+      }
+
+      function fsTestAccount(payload, tr){
+        const statusTd = tr ? tr.querySelector('.fs-acc-status') : null;
+        const lastTd = tr ? tr.querySelector('.fs-acc-last') : null;
+        const testBtn = tr ? tr.querySelector('button[data-act="test"]') : null;
+
+        if (statusTd) {
+          statusTd.dataset.status = 'CHECKING';
+          statusTd.innerHTML = fsStatusPill('CHECKING');
+        }
+        if (testBtn) {
+          testBtn.disabled = true;
+          testBtn.textContent = 'Testing...';
+        }
+
+        google.script.run
+          .withSuccessHandler(res => {
+            const ok = !!res?.success;
+            const nextStatus = ok ? 'CONNECTED' : 'FAILED';
+            if (statusTd) {
+              statusTd.dataset.status = nextStatus;
+              statusTd.innerHTML = fsStatusPill(nextStatus);
+            }
+            if (lastTd) lastTd.textContent = fsNowLocal_();
+            if (testBtn) {
+              testBtn.disabled = false;
+              testBtn.textContent = 'Test';
+            }
+            fsToast(ok ? 'Connected' : 'Disconnected', res?.message || (ok ? 'Berhasil terhubung' : 'Gagal terhubung'));
+            fsRenderConnChipsFromTable_();
+            fsLoadActivityLogs();
+          })
+          .withFailureHandler(err => {
+            if (statusTd) {
+              statusTd.dataset.status = 'FAILED';
+              statusTd.innerHTML = fsStatusPill('FAILED');
+            }
+            if (lastTd) lastTd.textContent = fsNowLocal_();
+            if (testBtn) {
+              testBtn.disabled = false;
+              testBtn.textContent = 'Test';
+            }
+            fsToast('Test gagal', err?.message || 'Terjadi kesalahan');
+            fsRenderConnChipsFromTable_();
+          })
+          .testAccountConnection(payload);
+      }
+
+      function fsResetFilter(){
+        if (!fsBoot) return;
+        el('fsFilterStart').value = fsBoot.defaultStart || '';
+        el('fsFilterEnd').value = fsBoot.defaultEnd || '';
+        el('fsFilterSite').value = '';
+        el('fsFilterAccount').value = '';
+        fsLoadDashboard();
+      }
+
+      function fsLoadDashboard(){
+        fsSetLoader('fsDashLoader', true);
+        fsSetLoader('fsTableLoader', true);
+        const tbody = el('fsDataBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="fs-muted" style="text-align:center; padding: 24px;">Memuat data...</td></tr>';
+
+        const filters = {
+          startDate: el('fsFilterStart').value,
+          endDate: el('fsFilterEnd').value,
+          site: el('fsFilterSite').value,
+          accountName: el('fsFilterAccount').value
+        };
+
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsDashLoader', false);
+            fsSetLoader('fsTableLoader', false);
+            fsRenderSummary(res.summary);
+            fsRenderTable(res.rows);
+            fsRenderCharts(res.charts);
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsDashLoader', false);
+            fsSetLoader('fsTableLoader', false);
+            if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 24px; color: var(--fs-danger); font-weight:900;">Gagal memuat data: ' + fsEscapeHtml(err?.message || 'Error') + '</td></tr>';
+            fsToast('Gagal memuat data', err?.message || 'Terjadi kesalahan');
+          })
+          .getDashboardData(filters);
+      }
+
+      function fsRunUpdateGoogleEarning(){
+        fsSetLoader('fsDashLoader', true);
+        fsTrace('UPDATE_GOOGLE_EARNING', 'Menjalankan update Google Earning');
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsDashLoader', false);
+            fsToast('Update Google Earning', res?.message || 'Berhasil dijalankan');
+            fsTrace('UPDATE_GOOGLE_EARNING', res?.message || 'Sukses update');
+            fsLoadLastSyncInfo();
+            fsLoadDashboard();
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsDashLoader', false);
+            fsToast('Update Google Earning gagal', err?.message || 'Terjadi kesalahan');
+            fsTrace('UPDATE_GOOGLE_EARNING', err?.message || 'Gagal update', 'ERROR');
+          })
+          .runUpdateGoogleEarning();
+      }
+
+      function fsRunUpdateAll(){
+        fsSetLoader('fsDashLoader', true);
+        fsTrace('UPDATE_ALL', 'Menjalankan Update Google Earning + Sync Meta hari ini');
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsDashLoader', false);
+            const today = String(res?.today || new Date().toISOString().slice(0,10));
+            fsToast('Update All selesai', `Fetched ${res?.totals?.fetched || 0} • Inserted ${res?.totals?.inserted || 0} • Updated ${res?.totals?.updated || 0}`);
+            el('fsFilterStart').value = today;
+            el('fsFilterEnd').value = today;
+            if (res?.filters) fsFillFilters(res.filters);
+            fsLoadLastSyncInfo();
+            fsLoadDashboard();
+            fsLoadActivityLogs();
+            fsTrace('UPDATE_ALL', `Sukses update all cepat (today ${today})`);
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsDashLoader', false);
+            fsToast('Update All gagal', err?.message || 'Terjadi kesalahan');
+            fsTrace('UPDATE_ALL', err?.message || 'Gagal update all', 'ERROR');
+          })
+          .runUpdateAllFast();
+      }
+
+      function fsRunSync(){
+        fsSetLoader('fsDashLoader', true);
+        const payload = {
+          startDate: el('fsFilterStart').value,
+          endDate: el('fsFilterEnd').value
+        };
+
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsDashLoader', false);
+            fsToast('Sync selesai', `Fetched ${res?.totals?.fetched || 0} • Inserted ${res?.totals?.inserted || 0} • Updated ${res?.totals?.updated || 0}`);
+            fsFillFilters(res.filters);
+            fsLoadLastSyncInfo();
+            fsLoadDashboard();
+            fsLoadActivityLogs();
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsDashLoader', false);
+            fsToast('Sync gagal', err?.message || 'Terjadi kesalahan');
+          })
+          .syncMetaData(payload);
+      }
+
+      function fsRunSyncRecent(){
+        fsSetLoader('fsDashLoader', true);
+        const now = new Date();
+        const start = new Date(now);
+        start.setDate(start.getDate() - 2);
+        const fmt = (d) => {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return `${y}-${m}-${day}`;
+        };
+        const startDate = fmt(start);
+        const endDate = fmt(now);
+
+        const payload = { startDate, endDate };
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsDashLoader', false);
+            fsToast('Refresh 3 hari selesai', `Fetched ${res?.totals?.fetched || 0} • Inserted ${res?.totals?.inserted || 0} • Updated ${res?.totals?.updated || 0}`);
+            el('fsFilterStart').value = startDate;
+            fsLoadLastSyncInfo();
+            el('fsFilterEnd').value = endDate;
+            fsFillFilters(res.filters);
+            fsLoadDashboard();
+            fsLoadActivityLogs();
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsDashLoader', false);
+            fsToast('Refresh 3 hari gagal', err?.message || 'Terjadi kesalahan');
+          })
+          .syncMetaData(payload);
+      }
+
+      function fsUpdateCampaignBudget(campaignId, budgetType, budgetValue){
+        const adAccountId = el('fsBudgetAccount')?.value || '';
+        if (!adAccountId || !campaignId || !budgetValue) {
+          fsToast('Data belum lengkap', 'Akun, Campaign, dan Budget Value wajib diisi');
+          return;
+        }
+
+        fsSetLoader('fsCampBudgetLoader', true);
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsCampBudgetLoader', false);
+            const c = res?.campaign || {};
+            fsToast('Budget diupdate', `${c.name || campaignId} • Daily: ${c.daily_budget || '-'} • Lifetime: ${c.lifetime_budget || '-'}`);
+            fsLoadCampaignOptions();
+            fsLoadDashboard();
+            fsLoadActivityLogs();
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsCampBudgetLoader', false);
+            fsToast('Update budget gagal', err?.message || 'Terjadi kesalahan');
+          })
+          .updateCampaignBudget({ adAccountId, campaignId, budgetType, budgetValue });
+      }
+
+      async function fsSetBudgetDirect(campaignId){
+        const c = fsCampaignMap[String(campaignId)];
+        if (!c) {
+          fsToast('Campaign tidak ditemukan', 'Silakan refresh daftar campaign');
+          return;
+        }
+        const budgetType = c.daily_budget ? 'DAILY' : (c.lifetime_budget ? 'LIFETIME' : 'DAILY');
+        const base = Number(c.daily_budget || c.lifetime_budget || 0);
+        const input = el(`fsDirectBudget-${campaignId}`);
+        const next = Math.round(Number(input?.value || 0));
+        if (!next || next <= 0) {
+          fsToast('Budget belum valid', 'Masukkan angka budget lebih dari 0');
+          return;
+        }
+        if (next === Math.round(base)) {
+          fsToast('Tidak ada perubahan', 'Nilai budget sama dengan budget saat ini');
+          return;
+        }
+        const direction = next > base ? 'Naikkan' : 'Turunkan';
+        const ok = await fsConfirmDialog({
+          title: `Verifikasi ${direction} Budget`,
+          message: `Campaign: ${c.name || campaignId}\nBudget saat ini: Rp ${fsFormatNumber(base)}\nBudget baru: Rp ${fsFormatNumber(next)}`,
+          okText: `Ya, ${direction}`,
+          danger: next < base
+        });
+        if (!ok) return;
+        fsUpdateCampaignBudget(campaignId, budgetType, next);
+      }
+
+      async function fsSetCampaignStatus(campaignId, status){
+        const adAccountId = el('fsBudgetAccount')?.value || '';
+        if (!adAccountId || !campaignId) {
+          fsToast('Data belum lengkap', 'Pilih akun dan campaign terlebih dahulu');
+          return;
+        }
+        const c = fsCampaignMap[String(campaignId)] || {};
+        const name = String(c.name || campaignId);
+        const ok = await fsConfirmDialog({
+          title: 'Verifikasi Status Campaign',
+          message: `Yakin ingin mengubah status campaign "${name}" menjadi ${status}?`,
+          okText: 'Ya, Ubah Status',
+          danger: true
+        });
+        if (!ok) return;
+
+        fsSetLoader('fsCampBudgetLoader', true);
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsCampBudgetLoader', false);
+            const c = res?.campaign || {};
+            fsToast('Status campaign', `${c.name || campaignId} -> ${c.status || status}`);
+            fsLoadCampaignOptions();
+            fsLoadDashboard();
+            fsLoadActivityLogs();
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsCampBudgetLoader', false);
+            fsToast('Ubah status gagal', err?.message || 'Terjadi kesalahan');
+          })
+          .setCampaignStatus({ adAccountId, campaignId, status });
+      }
+
+      function fsToggleCampaignStatus(campaignId){
+        const c = fsCampaignMap[String(campaignId)];
+        if (!c) {
+          fsToast('Campaign tidak ditemukan', 'Silakan refresh daftar campaign');
+          return;
+        }
+        const current = String(c.status || '').toUpperCase();
+        const target = current === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
+        fsSetCampaignStatus(campaignId, target);
+      }
+
+      async function fsUpBudgetPercent(campaignId, percent){
+        const c = fsCampaignMap[String(campaignId)];
+        if (!c) {
+          fsToast('Campaign tidak ditemukan', 'Silakan refresh daftar campaign');
+          return;
+        }
+        const budgetType = c.daily_budget ? 'DAILY' : (c.lifetime_budget ? 'LIFETIME' : 'DAILY');
+        const base = Number(c.daily_budget || c.lifetime_budget || 0);
+        if (!base || base <= 0) {
+          fsToast('Budget tidak valid', 'Campaign ini belum memiliki budget dasar');
+          return;
+        }
+        const next = Math.round(base * (1 + Number(percent || 0) / 100));
+        const ok = await fsConfirmDialog({
+          title: 'Verifikasi Scale Up Budget',
+          message: `Campaign: ${c.name || campaignId}\nKenaikan: +${percent}%\nBudget saat ini: Rp ${fsFormatNumber(base)}\nBudget baru: Rp ${fsFormatNumber(next)}`,
+          okText: 'Ya, Scale Up',
+          danger: false
+        });
+        if (!ok) return;
+        fsUpdateCampaignBudget(campaignId, budgetType, next);
+      }
+
+      function fsUpBudgetPercentCustom(campaignId){
+        const input = el(`fsPct-${campaignId}`);
+        const pct = Number(input?.value || 0);
+        if (!pct || pct <= 0) {
+          fsToast('Persen belum valid', 'Masukkan persen lebih dari 0');
+          return;
+        }
+        fsUpBudgetPercent(campaignId, pct);
+      }
+
+      async function fsUpBudgetNominal(campaignId){
+        const c = fsCampaignMap[String(campaignId)];
+        if (!c) {
+          fsToast('Campaign tidak ditemukan', 'Silakan refresh daftar campaign');
+          return;
+        }
+        const budgetType = c.daily_budget ? 'DAILY' : (c.lifetime_budget ? 'LIFETIME' : 'DAILY');
+        const base = Number(c.daily_budget || c.lifetime_budget || 0);
+        const input = el(`fsNominal-${campaignId}`);
+        const addNominal = Number(input?.value || 0);
+        if (!base || base <= 0) {
+          fsToast('Budget tidak valid', 'Campaign ini belum memiliki budget dasar');
+          return;
+        }
+        if (!addNominal || addNominal <= 0) {
+          fsToast('Nominal belum valid', 'Masukkan nilai rupiah lebih dari 0');
+          return;
+        }
+        const next = Math.round(base + addNominal);
+        const ok = await fsConfirmDialog({
+          title: 'Verifikasi Scale Up Nominal',
+          message: `Campaign: ${c.name || campaignId}\nBudget saat ini: Rp ${fsFormatNumber(base)}\nPenambahan: Rp ${fsFormatNumber(addNominal)}\nBudget baru: Rp ${fsFormatNumber(next)}`,
+          okText: 'Ya, Scale Up',
+          danger: false
+        });
+        if (!ok) return;
+        fsUpdateCampaignBudget(campaignId, budgetType, next);
+      }
+
+      function fsBootstrap(opts){
+        const options = opts || {};
+        fsSetLoader('fsAccLoader', true);
+        const accBody = el('fsAccountsBody');
+        if (accBody) accBody.innerHTML = '<tr><td colspan="7" class="fs-muted" style="text-align:center; padding: 24px;">Memuat akun...</td></tr>';
+
+        google.script.run
+          .withSuccessHandler(res => {
+            fsSetLoader('fsAccLoader', false);
+            fsBoot = res;
+            fsTrace('BOOTSTRAP', `Aplikasi siap untuk ${res.currentUserEmail || 'user'}`);
+            fsRenderUser(res.currentUserEmail || '');
+            el('fsFilterStart').value = res.defaultStart || '';
+            el('fsFilterEnd').value = res.defaultEnd || '';
+            if (el('fsRoiStart')) el('fsRoiStart').value = res.today || '';
+            if (el('fsRoiEnd')) el('fsRoiEnd').value = res.today || '';
+            fsFillFilters(res.filters);
+            fsFillCampaignAccountOptions(res.accounts);
+            fsRenderConnChips(res.accounts);
+            fsRenderAccounts(res.accounts);
+            fsLoadCampaignOptions();
+            fsLoadAccountAlerts();
+            fsStartLiveLog();
+            fsLoadLastSyncInfo();
+            fsLoadRoiToday();
+            if (!options.skipDashboard) fsLoadDashboard();
+          })
+          .withFailureHandler(err => {
+            fsSetLoader('fsAccLoader', false);
+            if (accBody) accBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 24px; color: var(--fs-danger); font-weight:900;">Gagal memuat akun: ' + fsEscapeHtml(err?.message || 'Error') + '</td></tr>';
+            fsTrace('BOOTSTRAP', err?.message || 'Bootstrap gagal', 'ERROR');
+            fsToast('Bootstrap gagal', err?.message || 'Terjadi kesalahan');
+          })
+          .getAppBootstrap();
+      }
+
+      function fsBindAccountsActions(){
+        const tbody = el('fsAccountsBody');
+        if (!tbody) return;
+        tbody.addEventListener('click', function(e){
+          const btn = e.target.closest('button[data-act]');
+          if (!btn) return;
+          const tr = btn.closest('tr');
+          if (!tr) return;
+          const act = btn.getAttribute('data-act');
+
+          if (act === 'remove') {
+            tr.remove();
+            return;
+          }
+
+          if (act === 'toggleToken') {
+            const input = tr.querySelector('.fs-acc-token');
+            if (!input) return;
+            const next = input.type === 'password' ? 'text' : 'password';
+            input.type = next;
+            btn.textContent = next === 'text' ? 'Hide' : 'Show';
+            return;
+          }
+
+          if (act === 'test') {
+            const payload = {
+              accountName: tr.querySelector('.fs-acc-name')?.value.trim() || '',
+              adAccountId: tr.querySelector('.fs-acc-id')?.value.trim() || '',
+              accessToken: tr.querySelector('.fs-acc-token')?.value.trim() || ''
+            };
+            fsTestAccount(payload, tr);
+          }
+        });
+      }
+
+      function fsBindDetailModalActions(){
+        const root = el('fsCampDetail');
+        if (!root) return;
+        root.addEventListener('click', function(e){
+          if (e.target === root) fsCloseCampaignDetail();
+        });
+        document.addEventListener('keydown', function(e){
+          if (e.key === 'Escape') fsCloseCampaignDetail();
+        });
+      }
+
+      window.fsSetTab = fsSetTab;
+      window.fsToggleTheme = fsToggleTheme;
+      window.fsRunSync = fsRunSync;
+      window.fsRunSyncRecent = fsRunSyncRecent;
+      window.fsRunUpdateGoogleEarning = fsRunUpdateGoogleEarning;
+      window.fsRunUpdateAll = fsRunUpdateAll;
+      window.fsUpdateCampaignBudget = fsUpdateCampaignBudget;
+      window.fsSetCampaignStatus = fsSetCampaignStatus;
+      window.fsToggleCampaignStatus = fsToggleCampaignStatus;
+      window.fsSetBudgetDirect = fsSetBudgetDirect;
+      window.fsUpBudgetPercent = fsUpBudgetPercent;
+      window.fsUpBudgetPercentCustom = fsUpBudgetPercentCustom;
+      window.fsUpBudgetNominal = fsUpBudgetNominal;
+      window.fsTestAllAccounts = fsTestAllAccounts;
+      window.fsLoadAccountAlerts = fsLoadAccountAlerts;
+      window.fsSendAlertEmail = fsSendAlertEmail;
+      window.fsLoadCampaignOptions = fsLoadCampaignOptions;
+      window.fsLoadActivityLogs = fsLoadActivityLogs;
+      window.fsLoadRoiToday = fsLoadRoiToday;
+      window.fsApplyRoiFilter = fsApplyRoiFilter;
+      window.fsClearRoiSiteFilter = fsClearRoiSiteFilter;
+      window.fsCopyRoiUnderperformReport = fsCopyRoiUnderperformReport;
+      window.fsCopyRoiScaleupReport = fsCopyRoiScaleupReport;
+      window.fsClearTrackerLogs = fsClearTrackerLogs;
+      window.fsOpenCampaignDetail = fsOpenCampaignDetail;
+      window.fsCloseCampaignDetail = fsCloseCampaignDetail;
+      window.fsExportCampaignMetadata = fsExportCampaignMetadata;
+      window.fsExportCurrentCampaignMetadata = fsExportCurrentCampaignMetadata;
+      window.fsUnlockApp = fsUnlockApp;
+      window.fsStartEditAd = fsStartEditAd;
+      window.fsSaveAdMetadata = fsSaveAdMetadata;
+      window.fsResetFilter = fsResetFilter;
+      window.fsLoadDashboard = fsLoadDashboard;
+      window.fsAddAccountRow = fsAddAccountRow;
+      window.fsSaveAccounts = fsSaveAccounts;
+      const lockPinInput = el('fsLockPin');
+      if (lockPinInput) {
+        lockPinInput.addEventListener('keydown', function(e){
+          if (e.key === 'Enter') fsUnlockApp();
+        });
+      }
+      fsShowLock();
+    })();
+  </script>
+</body>
+</html>
